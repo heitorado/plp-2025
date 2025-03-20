@@ -4,6 +4,7 @@ Repositório do projeto de Paradigmas de Linguagem de Programação - Sob orient
 
 ### Integrantes
 Heitor Sammuel Carvalho Souza | hscs
+Bruno da Silva Ramos | bsr
 
 ### Introdução
 a definir
