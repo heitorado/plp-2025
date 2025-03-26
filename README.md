@@ -16,9 +16,9 @@ O escopo do projeto consiste em, utilizando um gerador de parser escrito em Rust
 - Implementar uma linguagem _(de expressões? funcional? imperativa? a definir...)_ simples, como as linguagens LE1 / LE2 / LF1 introduzidas na cadeira
 - A linguagem criada terá como característica o conceito de _ownership_, também presente na linguagem Rust
   -  Ownership é um conjunto de regras que define como Rust gerencia a memória. Retirado da documentação oficial:
-    -  _Cada valor em Rust possui uma variável que é dita seu owner (sua dona)._
-    -  _Pode apenas haver um owner por vez._
-    -  _Quando o owner sai fora de escopo, o valor será destruído._
+     -  _Cada valor em Rust possui uma variável que é dita seu owner (sua dona)._
+     -  _Pode apenas haver um owner por vez._
+     -  _Quando o owner sai fora de escopo, o valor será destruído._
 
 #### Parser
 Candidatos a parsers para este projeto por enquanto são:
