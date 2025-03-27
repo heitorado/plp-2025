@@ -7,6 +7,8 @@ Heitor Sammuel Carvalho Souza | hscs
 
 Bruno da Silva Ramos | bsr
 
+Giovanna Ily Farias Ramalho | gifr
+
 ### Introdução
 Os integrantes desse grupo não são Javeiros, mas têm muita coragem e um parafuso a menos. Por isso, o projeto da cadeira de PLP 2025.1 será feito em Rust, linguagem que ambos não dominam mas querem se aprofundar. Usando um gerador de parser já existente feito em rust, iremos implementar uma linguagem simples.
 
