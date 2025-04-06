@@ -1,13 +1,13 @@
 pub mod ast;
 
-use ast::{ConcretValue, Value};
+use ast::{BinaryOperator, ConcretValue, Expression, Value};
 use nom::{
     IResult, Parser,
     branch::alt,
     bytes::complete::{tag, take_while},
-    character::complete::{alpha1, digit1, multispace0},
-    combinator::recognize,
-    sequence::pair,
+    character::complete::{alpha1, alphanumeric1, char, digit1, multispace0},
+    combinator::{map, recognize},
+    sequence::{delimited, pair},
 };
 
 //// Parser para espaços em branco
@@ -35,7 +35,7 @@ pub fn identifier(input: &str) -> IResult<&str, String> {
 }
 
 // PARSERS PARA VALORES CONCRETOS
-
+// PARSER PARA LINGUAGEM QUE RECONHECE A SOMA
 // INT
 // Tomar cuidado na hora de importar os arquivos das libs, autocomplete é troll e importa o modulo e não a função
 pub fn parse_int(input: &str) -> IResult<&str, ConcretValue> {
@@ -52,4 +52,40 @@ pub fn parse_int(input: &str) -> IResult<&str, ConcretValue> {
     //     ConcretValue::Value(Value::Int(s.parse().unwrap()))
     // })
     // .parse(input);
+}
+
+// Parser do operador "+" com espaços opcionais
+pub fn parser_add(input: &str) -> IResult<&str, BinaryOperator> {
+    delimited(
+        ws,       // Espaços antes
+        tag("+"), // Operador
+        ws,       // Espaços depois
+    )
+    .parse(input)
+    .map(|(input, _)| (input, BinaryOperator::Add))
+}
+
+// Parser para int ou identifier com espaços opcionais
+pub fn parse_int_or_identifier(input: &str) -> IResult<&str, Expression> {
+    delimited(
+        ws,
+        alt((
+            map(parse_int, Expression::ConcretValue),
+            map(identifier, Expression::Identifier),
+        )),
+        ws,
+    )
+    .parse(input)
+}
+
+// Parser da expressão binária (Add only)
+pub fn parse_binary_expression(input: &str) -> IResult<&str, Expression> {
+    let (input, left) = parse_int_or_identifier(input)?;
+    let (input, op) = parser_add(input)?;
+    let (input, right) = parse_int_or_identifier(input)?;
+
+    Ok((
+        input,
+        Expression::BinaryExp(op, Box::new(left), Box::new(right)),
+    ))
 }
