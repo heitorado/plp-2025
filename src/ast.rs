@@ -79,14 +79,14 @@ pub enum IOCommand {
 }
 
 // O professor ainda não disse o porque desse valor concreto.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ConcretValue {
     // Valor
     Value(Value),
 }
 
 // Valor Real
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Value {
     // Inteiro
     Int(i64),
