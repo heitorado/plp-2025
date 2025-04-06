@@ -65,7 +65,7 @@ pub fn parser_add(input: &str) -> IResult<&str, BinaryOperator> {
     .map(|(input, _)| (input, BinaryOperator::Add))
 }
 
-// Parser para int ou identifier com espaços opcionais
+// Parser para int ou identifier
 pub fn parse_int_or_identifier(input: &str) -> IResult<&str, Expression> {
     delimited(
         ws,

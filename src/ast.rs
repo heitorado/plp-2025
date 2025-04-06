@@ -32,7 +32,7 @@ pub enum Declaration {
                                                   // CompoundDeclaration(Vec<Box<Declaration>>), // var x = 5; var y = 10;
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Expression {
     // Valores literais
     ConcretValue(ConcretValue), // 5, true, "string"
@@ -46,14 +46,14 @@ pub enum Expression {
     BinaryExp(BinaryOperator, Box<Expression>, Box<Expression>), // x + y, x * y
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum UnatyOperator {
     Neg,    // Negação
     Not,    // Negação lógica
     Length, // Tamanho da string/lista
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BinaryOperator {
     // Aritméticos
     Add, // +
