@@ -4,7 +4,7 @@ pub enum Program {
     Command(Command),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Command {
     // Atribuição de valor
     Assignment(String, Expression), // x := 5
@@ -13,7 +13,7 @@ pub enum Command {
     // Expression (Condicional do Loop), Box<Command> (Corpo do Loop)       // { var x = 10; ... }
     WhileLoop(Expression, Box<Command>), // while
     // Expression (Condicional do If), Box<Command> (Corpo do If), Option<Box<Command>> (Corpo do Else)
-    IfElse(Expression, Box<Command>, Option<Box<Command>>), // if ... then ... else ...
+    IfElse(Expression, Box<Command>, Box<Command>), // if ... then ... else ...
     // Entrada/Saída
     IO(IOCommand), // write(...) or read(...)
     // Sequência de comandos
@@ -21,7 +21,7 @@ pub enum Command {
     Skip,                                 // no operation
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Declaration {
     // Definição de variável única
     Variable(String, Expression), // var x = 5
@@ -40,14 +40,14 @@ pub enum Expression {
     Identifier(String), // x
     // Expressões unarias
     // Neg, Length e expressão -x -> x
-    UnaryExp(UnatyOperator, Box<Expression>), // -x, not y
+    UnaryExp(UnaryOperator, Box<Expression>), // -x, not y
     // Expressões Binárias
     // BinaryOperator -> Tipo da expressão
     BinaryExp(BinaryOperator, Box<Expression>, Box<Expression>), // x + y, x * y
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum UnatyOperator {
+pub enum UnaryOperator {
     Neg,    // Negação
     Not,    // Negação lógica
     Length, // Tamanho da string/lista
@@ -70,7 +70,7 @@ pub enum BinaryOperator {
     Concat, // ++
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum IOCommand {
     // Entrada
     Read(String), // read x
