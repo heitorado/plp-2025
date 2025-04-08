@@ -12,6 +12,11 @@ pub fn ws(input: &str) -> IResult<&str, &str> {
     multispace0(input)
 }
 
+// Parser para espaços em branco e parenteses
+pub fn ws_paren(input: &str) -> IResult<&str, &str> {
+    take_while(|c: char| c.is_whitespace() || c == '(' || c == ')').parse(input)
+}
+
 // Parse para identificador
 pub fn parse_identifier(input: &str) -> IResult<&str, String> {
     let mut parser = recognize(pair(

@@ -40,7 +40,7 @@ mod command_parsers_tests {
 
     #[test]
     fn test_declaration_block() {
-        let input = "{ var x = 5; var y = 10 }";
+        let input = "{ var x = 5; var y = 10; write(x + y) }";
         assert!(parse_command(input).is_ok());
     }
 

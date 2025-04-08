@@ -1,8 +1,11 @@
 use crate::ast::Expression;
-use crate::parsers::basic_parsers::{parse_identifier, ws};
+use crate::parsers::basic_parsers::{parse_identifier, ws, ws_paren};
 use crate::parsers::concret_value_parsers::{parse_bool, parse_int, parse_string};
 use crate::parsers::operators_parsers::{parse_binary_operator, parse_unary_operator, precedence};
-use nom::{IResult, Parser, branch::alt, combinator::map, sequence::delimited};
+use nom::sequence::preceded;
+use nom::{
+    IResult, Parser, branch::alt, bytes::complete::tag, combinator::map, sequence::delimited,
+};
 
 pub fn parse_concrect_value(input: &str) -> IResult<&str, Expression> {
     delimited(
@@ -18,9 +21,9 @@ pub fn parse_concrect_value(input: &str) -> IResult<&str, Expression> {
 }
 
 // Depois implemento
-// pub fn parse_parenthesized(input: &str) -> IResult<&str, Expression> {
-//     delimited(tag("("), map(parse_expression, |e| e), tag(")")).parse(input)
-// }
+pub fn parse_parenthesized(input: &str) -> IResult<&str, Expression> {
+    delimited(tag("("), delimited(ws, parse_expression, ws), tag(")")).parse(input)
+}
 
 pub fn parse_expression_atomic(input: &str) -> IResult<&str, Expression> {
     delimited(
@@ -28,6 +31,7 @@ pub fn parse_expression_atomic(input: &str) -> IResult<&str, Expression> {
         alt((
             parse_concrect_value,
             map(parse_identifier, Expression::Identifier),
+            parse_parenthesized,
         )),
         ws,
     )
@@ -36,6 +40,7 @@ pub fn parse_expression_atomic(input: &str) -> IResult<&str, Expression> {
 
 // Parser principal
 pub fn parse_expression(input: &str) -> IResult<&str, Expression> {
+    // let (input, _) = parse_parenthesized(input)?;
     parse_expr_bp(input, 0)
 }
 
@@ -60,9 +65,21 @@ pub fn parse_expr_bp(input: &str, min_prec: u8) -> IResult<&str, Expression> {
 // Primary Expressions
 pub fn parse_primary(input: &str) -> IResult<&str, Expression> {
     alt((
+        parse_length_expression,
         delimited(ws, parse_unary_expression, ws),
         parse_expression_atomic,
     ))
+    .parse(input)
+}
+
+fn parse_length_expression(input: &str) -> IResult<&str, Expression> {
+    map(
+        preceded(
+            tag("length"),
+            delimited(ws_paren, parse_expression, ws_paren),
+        ),
+        |expr| Expression::UnaryExp(crate::ast::UnaryOperator::Length, Box::new(expr)),
+    )
     .parse(input)
 }
 
