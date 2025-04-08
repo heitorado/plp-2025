@@ -1,42 +1,39 @@
-use estudos_rust::ast::{ConcretValue, Value};
-use estudos_rust::{parse_int, parser_bool, parser_string, ws};
-
 #[cfg(test)]
-mod test_parsets_concrect_value {
-    use super::*;
+mod concret_value_parsers_tests {
+    use estudos_rust::ast::{ConcretValue, Value};
+    use estudos_rust::parsers::concret_value_parsers::{parse_bool, parse_int, parse_string};
 
     #[test]
-    fn test_parser_bool_true() {
+    fn test_parse_bool_true() {
         let input: &str = "true";
 
         assert_eq!(
-            parser_bool(input),
+            parse_bool(input),
             Ok(("", ConcretValue::Value(Value::Bool(true))))
         )
     }
 
     #[test]
-    fn test_parser_bool_false() {
+    fn test_parse_bool_false() {
         let input: &str = "false";
 
         assert_eq!(
-            parser_bool(input),
+            parse_bool(input),
             Ok(("", ConcretValue::Value(Value::Bool(false))))
         )
     }
 
     #[test]
-    fn test_parser_string() {
+    fn test_parse_string() {
         let input: &str = "\"teste de string\" 1233";
 
         assert_eq!(
-            parser_string(input),
+            parse_string(input),
             Ok((
                 " 1233",
                 ConcretValue::Value(Value::Str("teste de string".to_string()))
             ))
         );
-        assert_eq!(ws("  \t \t"), Ok(("", "  \t \t")));
     }
 
     #[test]

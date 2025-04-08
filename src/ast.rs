@@ -8,9 +8,9 @@ pub enum Program {
 pub enum Command {
     // Atribuição de valor
     Assignment(String, Expression), // x := 5
-    // Bloco de definições
-    DeclarationBlock(Vec<Declaration>, Box<Command>),
-    // Expression (Condicional do Loop), Box<Command> (Corpo do Loop)       // { var x = 10; ... }
+    // Bloco de definições { x := x + 5 }
+    DeclarationBlock(Vec<Declaration>),
+    // Expression (Condicional do Loop), Box<Command> (Corpo do Loop)
     WhileLoop(Expression, Box<Command>), // while
     // Expression (Condicional do If), Box<Command> (Corpo do If), Option<Box<Command>> (Corpo do Else)
     IfElse(Expression, Box<Command>, Box<Command>), // if ... then ... else ...
@@ -43,7 +43,7 @@ pub enum Expression {
     UnaryExp(UnaryOperator, Box<Expression>), // -x, not y
     // Expressões Binárias
     // BinaryOperator -> Tipo da expressão
-    BinaryExp(BinaryOperator, Box<Expression>, Box<Expression>), // x + y, x * y
+    BinaryExp(BinaryOperator, Box<Expression>, Box<Expression>), // x + y, x - y
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

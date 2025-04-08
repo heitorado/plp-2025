@@ -1,28 +1,10 @@
-use estudos_rust::parser_program;
-// main.rs
-// fn main() {
-//     let inputs = vec!["3 -  5", " x == 10", "42 +y"];
-
-//     for input in inputs {
-//         println!("\nTestando: '{}'", input);
-//         match parser_binary_expression(input) {
-//             Ok((remaining, expr)) => {
-//                 println!("Restante: '{}'", remaining);
-//                 println!("AST: {:?}", expr);
-//             }
-//             Err(e) => println!("Erro: {:?}", e),
-//         }
-//     }
-// }
+use estudos_rust::parsers::program_parser::parse_program;
 
 fn main() {
-    let code = "{var x = 10;y := x + 5;}";
+    let code = r#"if x == 5 then y := x + 1 else z := 2 - x"#;
 
-    match parser_program(code) {
-        Ok((remaining, program)) => {
-            println!("Parsed: {:?}", program);
-            assert!(remaining.trim().is_empty());
-        }
-        Err(e) => println!("Error: {:?}", e),
+    match parse_program(code) {
+        Ok((_, program)) => println!("{:#?}", program),
+        Err(e) => println!("Erro: {:?}", e),
     }
 }
