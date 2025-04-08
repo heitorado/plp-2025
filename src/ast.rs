@@ -9,7 +9,7 @@ pub enum Command {
     // Atribuição de valor
     Assignment(String, Expression), // x := 5
     // Bloco de definições { x := x + 5 }
-    DeclarationBlock(Vec<Declaration>),
+    DeclarationBlock(Vec<Declaration>, Box<Command>),
     // Expression (Condicional do Loop), Box<Command> (Corpo do Loop)
     WhileLoop(Expression, Box<Command>), // while
     // Expression (Condicional do If), Box<Command> (Corpo do If), Option<Box<Command>> (Corpo do Else)

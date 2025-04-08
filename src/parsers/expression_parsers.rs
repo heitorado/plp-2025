@@ -59,7 +59,11 @@ pub fn parse_expr_bp(input: &str, min_prec: u8) -> IResult<&str, Expression> {
 
 // Primary Expressions
 pub fn parse_primary(input: &str) -> IResult<&str, Expression> {
-    alt((parse_unary_expression, parse_expression_atomic)).parse(input)
+    alt((
+        delimited(ws, parse_unary_expression, ws),
+        parse_expression_atomic,
+    ))
+    .parse(input)
 }
 
 // Parser unário
