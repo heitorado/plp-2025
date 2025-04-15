@@ -60,7 +60,7 @@ Atribuicao ::= Id ":=" Expressao
 
 Expressao ::= Valor | ExpUnaria | ExpBinaria | Id | ChamadaFuncao // Modificado para adicionar função
 
-Valor ::=ValorConcreto
+Valor ::= ValorConcreto
 
 ValorConcreto ::= ValorInteiro | ValorBooleano | ValorString
 
@@ -78,7 +78,9 @@ ExpBinaria ::= Expressao "+" Expressao
 
             | Expressao "++" Expressao
 
-ChamadaFuncao ::= Id "(" ListaExpressoes ")" // Modificado para adicionar função
+ListaParametros ::= Expressao | Expressao "," Expressao | Skip // Modificado para adicionar função
+
+ChamadaFuncao ::= Id "(" ListaParametros ")" // Modificado para adicionar função
 
 ComandoDeclaracao :: = "{" Declaracao ";" Comando "}"
 
