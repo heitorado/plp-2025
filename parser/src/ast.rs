@@ -26,6 +26,7 @@ pub enum Declaration {
     // Definição de variável única
     Variable(String, Expression), // var x = 5
     // Definição de variável separadas por virgula.
+    Procedure(String, Vec<ProcedureParameter>, Box<Command>),
     Compound(Box<Declaration>, Box<Declaration>), // var x = 5; var y = 10;
                                                   // MELHORIAS FUTURAS
                                                   // Definição de varias variáveis
@@ -43,7 +44,9 @@ pub enum Expression {
     UnaryExp(UnaryOperator, Box<Expression>), // -x, not y
     // Expressões Binárias
     // BinaryOperator -> Tipo da expressão
-    BinaryExp(BinaryOperator, Box<Expression>, Box<Expression>), // x + y, x - y
+    BinaryExp(BinaryOperator, Box<Expression>, Box<Expression>), // x + y, x - y, x == y
+
+    // ProcedureCall(String, Box<ExpressionList>)
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -100,4 +103,24 @@ pub enum Value {
     Str(String),
     // Booleano
     Bool(bool),
+}
+
+// #[derive(Debug, Clone, PartialEq, Eq)]
+// pub enum ExpressionList {
+//     // Lista de expressões
+//     Expression(Box<Expression>),
+//     Compound(Box<Expression>, Box<ExpressionList>),
+// }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ProcedureParameter {
+    pub identifier: Expression,
+    pub type_name: Type,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Type {
+    Int,
+    Str,
+    Bool,
 }

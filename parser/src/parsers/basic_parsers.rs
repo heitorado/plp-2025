@@ -3,9 +3,11 @@ use nom::{
     branch::alt,
     bytes::complete::{tag, take_while},
     character::complete::{alpha1, multispace0},
-    combinator::recognize,
+    combinator::{map, recognize},
     sequence::pair,
 };
+
+use crate::ast::Type;
 
 //// Parser para espaços em branco
 pub fn ws(input: &str) -> IResult<&str, &str> {
@@ -26,4 +28,21 @@ pub fn parse_identifier(input: &str) -> IResult<&str, String> {
 
     let (input, matched_str) = parser.parse(input)?;
     Ok((input, matched_str.to_string()))
+}
+
+pub fn parse_type(input: &str) -> IResult<&str, Type> {
+    map(
+        alt((
+            tag("int"),
+            tag("str"),
+            tag("bool"),
+        )),
+        |matched_str| match matched_str {
+            "int" => crate::ast::Type::Int,
+            "str" => crate::ast::Type::Str,
+            "bool" => crate::ast::Type::Bool,
+            _ => unreachable!(),
+        },
+    )
+    .parse(input)
 }
