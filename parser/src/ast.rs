@@ -68,6 +68,12 @@ pub enum BinaryOperator {
 
     // Concat
     Concat, // ++
+
+    // Menor, Maior que, Menor ou igual que, Maior ou igual que
+    Less, // <
+    LessEqual, // <=
+    Greater, // >
+    GreaterEqual, // >=
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

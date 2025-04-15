@@ -17,6 +17,8 @@ pub fn precedence(op: &BinaryOperator) -> u8 {
         BinaryOperator::Equal => 2,
         BinaryOperator::And => 1,
         BinaryOperator::Or => 0,
+        // TODO: Is this precedence weight correct?
+        BinaryOperator::Less | BinaryOperator::LessEqual | BinaryOperator::Greater | BinaryOperator::GreaterEqual => 2,
     }
 }
 
@@ -30,6 +32,10 @@ pub fn parse_binary_operator(input: &str) -> IResult<&str, BinaryOperator> {
             value(BinaryOperator::And, tag("and")),
             value(BinaryOperator::Or, tag("or")),
             value(BinaryOperator::Equal, tag("==")),
+            value(BinaryOperator::LessEqual, tag("<=")),
+            value(BinaryOperator::GreaterEqual, tag(">=")),
+            value(BinaryOperator::Less, tag("<")),
+            value(BinaryOperator::Greater, tag(">")),
         )),
         ws,
     )
