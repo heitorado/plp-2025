@@ -2,7 +2,7 @@ pub mod ast;
 pub mod parsers;
 
 // use ast::{
-//     BinaryOperator, Command, ConcretValue, Declaration, Expression, Program, UnaryOperator, Value,
+//     BinaryOperator, Command, ConcreteValue, Declaration, Expression, Program, UnaryOperator, Value,
 // };
 // use nom::{
 //     IResult, Parser,
@@ -33,7 +33,7 @@ pub mod parsers;
 // // PARSER PARA LINGUAGEM QUE RECONHECE A SOMA
 // // INT
 // // Tomar cuidado na hora de importar os arquivos das libs, autocomplete é troll e importa o modulo e não a função
-// pub fn parse_int(input: &str) -> IResult<&str, ConcretValue> {
+// pub fn parse_int(input: &str) -> IResult<&str, ConcreteValue> {
 //     // Reconhece os números
 //     let (input, converted_int_str) = digit1(input)?;
 
@@ -42,9 +42,9 @@ pub mod parsers;
 //         nom::Err::Error(nom::error::Error::new(input, nom::error::ErrorKind::Digit))
 //     })?;
 
-//     Ok((input, ConcretValue::Value(Value::Int(num))))
+//     Ok((input, ConcreteValue::Value(Value::Int(num))))
 //     // map(digit1, |s: &str| {
-//     //     ConcretValue::Value(Value::Int(s.parse().unwrap()))
+//     //     ConcreteValue::Value(Value::Int(s.parse().unwrap()))
 //     // })
 //     // .parse(input);
 // }
@@ -89,11 +89,11 @@ pub mod parsers;
 
 // // Parser para Valores Concretos
 // // String
-// pub fn parser_string(input: &str) -> IResult<&str, ConcretValue> {
+// pub fn parser_string(input: &str) -> IResult<&str, ConcreteValue> {
 //     delimited(
 //         tag("\""),
 //         map(take_while(|c: char| c != '"'), |s: &str| {
-//             ConcretValue::Value(Value::Str(s.to_string()))
+//             ConcreteValue::Value(Value::Str(s.to_string()))
 //         }),
 //         tag("\""),
 //     )
@@ -101,10 +101,10 @@ pub mod parsers;
 // }
 
 // // Bool
-// pub fn parser_bool(input: &str) -> IResult<&str, ConcretValue> {
+// pub fn parser_bool(input: &str) -> IResult<&str, ConcreteValue> {
 //     alt((
-//         value(ConcretValue::Value(Value::Bool(true)), tag("true")),
-//         value(ConcretValue::Value(Value::Bool(false)), tag("false")),
+//         value(ConcreteValue::Value(Value::Bool(true)), tag("true")),
+//         value(ConcreteValue::Value(Value::Bool(false)), tag("false")),
 //     ))
 //     .parse(input)
 // }
@@ -113,9 +113,9 @@ pub mod parsers;
 //     delimited(
 //         ws,
 //         alt((
-//             map(parse_int, Expression::ConcretValue),
-//             map(parser_bool, Expression::ConcretValue),
-//             map(parser_string, Expression::ConcretValue),
+//             map(parse_int, Expression::ConcreteValue),
+//             map(parser_bool, Expression::ConcreteValue),
+//             map(parser_string, Expression::ConcreteValue),
 //         )),
 //         ws,
 //     )

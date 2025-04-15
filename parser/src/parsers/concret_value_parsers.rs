@@ -1,4 +1,4 @@
-use crate::ast::{ConcretValue, Value};
+use crate::ast::{ConcreteValue, Value};
 use nom::{
     IResult, Parser,
     branch::alt,
@@ -9,7 +9,7 @@ use nom::{
 };
 
 // Parse Int
-pub fn parse_int(input: &str) -> IResult<&str, ConcretValue> {
+pub fn parse_int(input: &str) -> IResult<&str, ConcreteValue> {
     let (input, converted_int_str) = digit1(input)?; // Reconhece os Números
 
     let num = converted_int_str.parse::<i64>().map_err(|_| {
@@ -17,15 +17,15 @@ pub fn parse_int(input: &str) -> IResult<&str, ConcretValue> {
         nom::Err::Error(nom::error::Error::new(input, nom::error::ErrorKind::Digit))
     })?;
 
-    Ok((input, ConcretValue::Value(Value::Int(num))))
+    Ok((input, ConcreteValue::Value(Value::Int(num))))
 }
 
 // Parse String
-pub fn parse_string(input: &str) -> IResult<&str, ConcretValue> {
+pub fn parse_string(input: &str) -> IResult<&str, ConcreteValue> {
     delimited(
         tag("\""),
         map(take_while(|c: char| c != '"'), |s: &str| {
-            ConcretValue::Value(Value::Str(s.to_string()))
+            ConcreteValue::Value(Value::Str(s.to_string()))
         }),
         tag("\""),
     )
@@ -33,10 +33,10 @@ pub fn parse_string(input: &str) -> IResult<&str, ConcretValue> {
 }
 
 // Parse Bool
-pub fn parse_bool(input: &str) -> IResult<&str, ConcretValue> {
+pub fn parse_bool(input: &str) -> IResult<&str, ConcreteValue> {
     alt((
-        value(ConcretValue::Value(Value::Bool(true)), tag("true")),
-        value(ConcretValue::Value(Value::Bool(false)), tag("false")),
+        value(ConcreteValue::Value(Value::Bool(true)), tag("true")),
+        value(ConcreteValue::Value(Value::Bool(false)), tag("false")),
     ))
     .parse(input)
 }

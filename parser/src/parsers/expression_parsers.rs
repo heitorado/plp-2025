@@ -11,9 +11,9 @@ pub fn parse_concrect_value(input: &str) -> IResult<&str, Expression> {
     delimited(
         ws,
         alt((
-            map(parse_int, Expression::ConcretValue),
-            map(parse_bool, Expression::ConcretValue),
-            map(parse_string, Expression::ConcretValue),
+            map(parse_int, Expression::ConcreteValue),
+            map(parse_bool, Expression::ConcreteValue),
+            map(parse_string, Expression::ConcreteValue),
         )),
         ws,
     )

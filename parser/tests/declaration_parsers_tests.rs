@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod declaration_parsers_tests {
-    use estudos_rust::ast::{ConcretValue, Declaration, Expression, Value};
+    use estudos_rust::ast::{ConcreteValue, Declaration, Expression, Value};
     use estudos_rust::parsers::declaration_parsers::parse_declaration;
 
     #[test]
@@ -13,7 +13,7 @@ mod declaration_parsers_tests {
                 "",
                 Declaration::Variable(
                     "x".to_string(),
-                    Expression::ConcretValue(ConcretValue::Value(Value::Int(42)))
+                    Expression::ConcreteValue(ConcreteValue::Value(Value::Int(42)))
                 )
             ))
         );
@@ -30,11 +30,11 @@ mod declaration_parsers_tests {
                 Declaration::Compound(
                     Box::new(Declaration::Variable(
                         "a".to_string(),
-                        Expression::ConcretValue(ConcretValue::Value(Value::Int(5)))
+                        Expression::ConcreteValue(ConcreteValue::Value(Value::Int(5)))
                     )),
                     Box::new(Declaration::Variable(
                         "b".to_string(),
-                        Expression::ConcretValue(ConcretValue::Value(Value::Int(10)))
+                        Expression::ConcreteValue(ConcreteValue::Value(Value::Int(10)))
                     ))
                 )
             ))

@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod command_parsers_tests {
-    use estudos_rust::ast::{BinaryOperator, Command, ConcretValue, Expression, IOCommand, Value};
+    use estudos_rust::ast::{BinaryOperator, Command, ConcreteValue, Expression, IOCommand, Value};
     use estudos_rust::parsers::command_parsers::parse_command;
 
     #[test]
@@ -12,7 +12,7 @@ mod command_parsers_tests {
                 "",
                 Command::Assignment(
                     "x".into(),
-                    Expression::ConcretValue(ConcretValue::Value(Value::Int(42)))
+                    Expression::ConcreteValue(ConcreteValue::Value(Value::Int(42)))
                 )
             ))
         );
@@ -29,7 +29,7 @@ mod command_parsers_tests {
                     Expression::BinaryExp(
                         BinaryOperator::Add,
                         Box::new(Expression::Identifier("x".to_string())),
-                        Box::new(Expression::ConcretValue(ConcretValue::Value(Value::Int(
+                        Box::new(Expression::ConcreteValue(ConcreteValue::Value(Value::Int(
                             42
                         ))))
                     )
@@ -51,14 +51,14 @@ mod command_parsers_tests {
             Expression::BinaryExp(
                 BinaryOperator::Equal,
                 Box::new(Expression::Identifier("x".to_string())),
-                Box::new(Expression::ConcretValue(ConcretValue::Value(Value::Int(0)))),
+                Box::new(Expression::ConcreteValue(ConcreteValue::Value(Value::Int(0)))),
             ),
             Box::new(Command::Assignment(
                 "x".to_string(),
                 Expression::BinaryExp(
                     BinaryOperator::Add,
                     Box::new(Expression::Identifier("x".to_string())),
-                    Box::new(Expression::ConcretValue(ConcretValue::Value(Value::Int(1)))),
+                    Box::new(Expression::ConcreteValue(ConcreteValue::Value(Value::Int(1)))),
                 ),
             )),
         );
@@ -72,11 +72,11 @@ mod command_parsers_tests {
             Expression::Identifier("x".to_string()),
             Box::new(Command::Assignment(
                 "y".into(),
-                Expression::ConcretValue(ConcretValue::Value(Value::Int(1))),
+                Expression::ConcreteValue(ConcreteValue::Value(Value::Int(1))),
             )),
             Box::new(Command::Assignment(
                 "z".into(),
-                Expression::ConcretValue(ConcretValue::Value(Value::Int(2))),
+                Expression::ConcreteValue(ConcreteValue::Value(Value::Int(2))),
             )),
         );
         assert_eq!(parse_command(input), Ok(("", expected)));
@@ -89,8 +89,8 @@ mod command_parsers_tests {
             parse_command(input),
             Ok((
                 "",
-                Command::IO(IOCommand::Write(Box::new(Expression::ConcretValue(
-                    ConcretValue::Value(Value::Int(42))
+                Command::IO(IOCommand::Write(Box::new(Expression::ConcreteValue(
+                    ConcreteValue::Value(Value::Int(42))
                 ))))
             ))
         );
@@ -102,11 +102,11 @@ mod command_parsers_tests {
         let expected = Command::Sequence(
             Box::new(Command::Assignment(
                 "x".into(),
-                Expression::ConcretValue(ConcretValue::Value(Value::Int(5))),
+                Expression::ConcreteValue(ConcreteValue::Value(Value::Int(5))),
             )),
             Box::new(Command::Assignment(
                 "y".into(),
-                Expression::ConcretValue(ConcretValue::Value(Value::Int(10))),
+                Expression::ConcreteValue(ConcreteValue::Value(Value::Int(10))),
             )),
         );
         assert_eq!(parse_command(input), Ok(("", expected)));

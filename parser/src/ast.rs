@@ -35,7 +35,7 @@ pub enum Declaration {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Expression {
     // Valores literais
-    ConcretValue(ConcretValue), // 5, true, "string"
+    ConcreteValue(ConcreteValue), // 5, true, "string"
     // Nome das variáveis
     Identifier(String), // x
     // Expressões unarias
@@ -86,7 +86,7 @@ pub enum IOCommand {
 
 // O professor ainda não disse o porque desse valor concreto.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ConcretValue {
+pub enum ConcreteValue {
     // Valor
     Value(Value),
 }

@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod concret_value_parsers_tests {
-    use estudos_rust::ast::{ConcretValue, Value};
+    use estudos_rust::ast::{ConcreteValue, Value};
     use estudos_rust::parsers::concret_value_parsers::{parse_bool, parse_int, parse_string};
 
     #[test]
@@ -9,7 +9,7 @@ mod concret_value_parsers_tests {
 
         assert_eq!(
             parse_bool(input),
-            Ok(("", ConcretValue::Value(Value::Bool(true))))
+            Ok(("", ConcreteValue::Value(Value::Bool(true))))
         )
     }
 
@@ -19,7 +19,7 @@ mod concret_value_parsers_tests {
 
         assert_eq!(
             parse_bool(input),
-            Ok(("", ConcretValue::Value(Value::Bool(false))))
+            Ok(("", ConcreteValue::Value(Value::Bool(false))))
         )
     }
 
@@ -31,7 +31,7 @@ mod concret_value_parsers_tests {
             parse_string(input),
             Ok((
                 " 1233",
-                ConcretValue::Value(Value::Str("teste de string".to_string()))
+                ConcreteValue::Value(Value::Str("teste de string".to_string()))
             ))
         );
     }
@@ -41,7 +41,7 @@ mod concret_value_parsers_tests {
         let input = "12345";
         let result = parse_int(input);
 
-        assert_eq!(result, Ok(("", ConcretValue::Value(Value::Int(12345)))));
+        assert_eq!(result, Ok(("", ConcreteValue::Value(Value::Int(12345)))));
     }
 
     #[test]
@@ -49,7 +49,7 @@ mod concret_value_parsers_tests {
         let input = "123abc";
         let result = parse_int(input);
 
-        assert_eq!(result, Ok(("abc", ConcretValue::Value(Value::Int(123)))));
+        assert_eq!(result, Ok(("abc", ConcreteValue::Value(Value::Int(123)))));
     }
 
     #[test]
