@@ -78,7 +78,7 @@ ExpBinaria ::= Expressao "+" Expressao
 
             | Expressao "++" Expressao
 
-ListaParametros ::= Expressao | Expressao "," Expressao | Skip // Modificado para adicionar função
+ListaParametros ::= Expressao "," ListaParametros | Expressao | Skip // Modificado para adicionar função
 
 ChamadaFuncao ::= Id "(" ListaParametros ")" // Modificado para adicionar função
 
