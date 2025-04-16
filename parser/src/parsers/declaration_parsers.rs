@@ -4,13 +4,14 @@ use crate::parsers::command_parsers::parse_command;
 use crate::parsers::expression_parsers::parse_expression;
 use crate::ast::ProcedureParameter;
 use nom::Parser;
+use nom::branch::alt;
 use nom::{
     IResult, bytes::complete::tag, combinator::map, multi::separated_list1, sequence::delimited,
 };
 // Parser principal para declarações
 pub fn parse_declaration(input: &str) -> IResult<&str, Declaration> {
     let (input, declarations) =
-        separated_list1(delimited(ws, tag(";"), ws), parse_single_declaration).parse(input)?;
+        separated_list1(delimited(ws, tag(";"), ws), alt((parse_single_declaration, parse_procedure_declaration))).parse(input)?;
 
     let combined = declarations
         .into_iter()

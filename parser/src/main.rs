@@ -20,14 +20,7 @@ fn main() {
 
     //   call escreveRecursivo(b)
     // }"#;
-    let code = r#"
-    {
-        proc test(int a, string b, bool c) {
-            write(a);
-            write(b);
-            write(c);
-        };
-    }"#;
+    let code = r#"{ proc test(int a) { write(a) }; write(true) }"#;
 
     match parse_program(code) {
         Ok((_, program)) => println!("{:#?}", program),
