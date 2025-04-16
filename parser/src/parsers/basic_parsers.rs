@@ -34,12 +34,12 @@ pub fn parse_type(input: &str) -> IResult<&str, Type> {
     map(
         alt((
             tag("int"),
-            tag("str"),
+            tag("string"),
             tag("bool"),
         )),
         |matched_str| match matched_str {
             "int" => crate::ast::Type::Int,
-            "str" => crate::ast::Type::Str,
+            "string" => crate::ast::Type::Str,
             "bool" => crate::ast::Type::Bool,
             _ => unreachable!(),
         },
