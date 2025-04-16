@@ -117,14 +117,18 @@ fn parse_if_else(input: &str) -> IResult<&str, Command> {
 fn parse_io_command(input: &str) -> IResult<&str, Command> {
     alt((
         map(
+            delimited(ws,
             preceded(
                 tag("write"),
                 delimited(tag("("), parse_expression, tag(")")),
             ),
+            ws),
             |expr| Command::IO(IOCommand::Write(Box::new(expr))),
         ),
         map(
+            delimited(ws,
             preceded(tag("read"), delimited(tag("("), parse_identifier, tag(")"))),
+            ws),
             |var| Command::IO(IOCommand::Read(var)),
         ),
     ))

@@ -97,12 +97,12 @@ mod declaration_parsers_tests {
 
     #[test]
     fn test_procedure_declaration() {
-        let input = r#"proc test(int a) { write(a) }"#;
+        let input = r#"proc my_procedure_name(int my_var) { write(my_var) }"#;
         let result = parse_procedure_declaration(input);
         assert_eq!(result, Ok(("", Declaration::Procedure(
-            "test".to_string(),
-            vec![ProcedureParameter { identifier: Expression::Identifier("a".to_string()), type_name: Type::Int }],
-            Box::new(estudos_rust::ast::Command::IO(IOCommand::Write(Box::new(Expression::Identifier("a".to_string())))))
+            "my_procedure_name".to_string(),
+            vec![ProcedureParameter { identifier: Expression::Identifier("my_var".to_string()), type_name: Type::Int }],
+            Box::new(estudos_rust::ast::Command::IO(IOCommand::Write(Box::new(Expression::Identifier("my_var".to_string())))))
         ))));
     }
 }
