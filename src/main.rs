@@ -1,28 +1,45 @@
 fn main() {
-    // let code = r#"{ var a  =  0 ,
-    // proc incA (int a)  {
-    //     a := a + 1
-    // };
-    // call incA(10);
-    // call incA(20);
-    // write(a)
-    // }
+    use plp_2025::semantic::semantic::SemanticAnalyzer;
+
+    // let code: &str = r#"{
+    //             var x = 0,
+    //             var z = move x,
+    //             var y = move z;
+    //             write(y)
+    //         }
     // "#;
 
-    let code = r#"{ var x = 0,
-            var z = move x,
-        proc p (int y) {x := x + y};
-        { var x = 1;
-            call p(3); write(x)
-        };
-        call p(4); write(x)
-        }
-"#;
+    let code = r#"
+    {
+      var b = 3,
+      proc escreveRecursivo (int a) {
+        if (not (a == 0)) then {
+          var x = 0; x := a - 1;
+          write("Ola");
+          call escreveRecursivo(x)
+        } else skip
+      };
+
+      call escreveRecursivo(b);
+      write(b)
+    }"#;
+
+    // let code = r#"{ var x = 10,
+    //     proc usar_int(int a) { write(a) };
+    //     call usar_int(x);
+    //     write(x)
+    // }"#;
+
+    // let code = "{ var x = length(30); write(x) }";
 
     // let code = r#""#;
 
     match parser::parsers::program_parser::parse_program(code) {
-        Ok((_, program)) => println!("{:#?}", program),
+        Ok((_, program)) => {
+            let mut analyzer = SemanticAnalyzer::new();
+            let result = analyzer.check_program(&program);
+            println!("{:#?}", result)
+        }
         Err(e) => println!("Erro: {:?}", e),
     }
 }
