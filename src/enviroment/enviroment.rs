@@ -1,4 +1,4 @@
-use parser::ast::{ProcedureParameter, Type};
+use crate::ast::{ProcedureParameter, Type};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;

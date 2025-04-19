@@ -1,5 +1,6 @@
 fn main() {
     use plp_2025::semantic::semantic::SemanticAnalyzer;
+    use plp_2025::parsers::program_parser;
 
     // let code: &str = r#"{
     //             var x = 0,
@@ -34,7 +35,7 @@ fn main() {
 
     // let code = r#""#;
 
-    match parser::parsers::program_parser::parse_program(code) {
+    match program_parser::parse_program(code) {
         Ok((_, program)) => {
             let mut analyzer = SemanticAnalyzer::new();
             let result = analyzer.check_program(&program);

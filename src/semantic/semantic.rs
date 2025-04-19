@@ -1,6 +1,6 @@
 use std::{cell::RefCell, collections::HashSet, rc::Rc};
 
-use parser::ast::{
+use crate::ast::{
     BinaryOperator, Command, ConcreteValue, Declaration, Expression, IOCommand, Program, Type,
     UnaryOperator, Value,
 };

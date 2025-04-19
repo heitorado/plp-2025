@@ -18,15 +18,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "parser"
-version = "0.1.0"
-dependencies = [
- "nom",
-]
-
-[[package]]
 name = "plp-2025"
 version = "0.1.0"
 dependencies = [
- "parser",
+ "nom",
 ]
