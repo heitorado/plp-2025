@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use crate::ast::*;
-    use crate::semantic::semantic::SemanticAnalyzer;
+    use plp_2025::ast::*;
+    use plp_2025::semantic::semantic::SemanticAnalyzer;
     #[test]
     fn test_valid_move() {
         let program = Program::Command(Command::DeclarationBlock(

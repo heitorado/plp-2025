@@ -1,5 +1,6 @@
 fn main() {
     use plp_2025::semantic::semantic::SemanticAnalyzer;
+    use plp_2025::executor::executor::Executor;
     use plp_2025::parsers::program_parser;
 
     // let code: &str = r#"{
@@ -10,7 +11,7 @@ fn main() {
     //         }
     // "#;
 
-    let code = r#"
+    let _sample_code_1 = r#"
     {
       var b = 3,
       proc escreveRecursivo (int a) {
@@ -21,8 +22,12 @@ fn main() {
         } else skip
       };
 
-      call escreveRecursivo(b);
       write(b)
+    }"#;
+
+    let sample_code_2 = r#"
+    {
+      var x = 10; write(x)
     }"#;
 
     // let code = r#"{ var x = 10,
@@ -35,11 +40,29 @@ fn main() {
 
     // let code = r#""#;
 
-    match program_parser::parse_program(code) {
+    let code = sample_code_2;
+    let program = program_parser::parse_program(code);
+
+    // Análise Semântica
+    match program {
         Ok((_, program)) => {
             let mut analyzer = SemanticAnalyzer::new();
             let result = analyzer.check_program(&program);
-            println!("{:#?}", result)
+            println!("Semantic Analysis: {:?}", result)
+        }
+        Err(e) => println!("Erro: {:?}", e),
+    }
+
+    println!("Running...");
+    // TODO: solve borrow problem above to avoid shadowing the program variable here
+    let program = program_parser::parse_program(code);
+
+    // Execução
+    match program {
+        Ok((_, program)) => {
+            let executor = Executor::new();
+            let result = executor.execute_program(&program);
+            println!("Result: {:?}", result)
         }
         Err(e) => println!("Erro: {:?}", e),
     }
