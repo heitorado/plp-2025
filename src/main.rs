@@ -27,7 +27,7 @@ fn main() {
 
     let sample_code_2 = r#"
     {
-      var x = 10; write(x)
+      var x = 10; write(5)
     }"#;
 
     // let code = r#"{ var x = 10,

@@ -20,7 +20,7 @@ impl Executor {
             Command::DeclarationBlock(decls, body) => self.execute_declaration_block(decls, body),
             Command::WhileLoop(condition, body) => println!("<WhileLoop> Condition: {:?} | Body: {:?}", condition, body),//self.execute_while_loop(condition, body),
             Command::IfElse(condition, then_branch, else_branch) => println!("<IfElse> Condition: {:?} | Then: {:?} | Else: {:?}", condition, then_branch, else_branch),//self.execute_if_else(condition, then_branch, else_branch),
-            Command::IO(io_command) => println!("<IO> IOCommand: {:?}", io_command),//self.execute_io(io_command),
+            Command::IO(io_command) => self.execute_io(io_command),
             Command::Sequence(left, right) => println!("<Sequence> Left: {:?} | Right: {:?}", left, right),//self.execute_sequence(left, right),
             Command::Skip => println!("Skip"),//self.execute_skip(),
             Command::CallProcedure(proc_name) => println!("<CallProcedure> ProcName: {:?}", proc_name),//self.execute_call_procedure(proc_name, args),
@@ -32,5 +32,31 @@ impl Executor {
         // TODO: execute declaration block here...
         println!("<DeclarationBlock> Body: {:?}", body);
         self.execute_command(body);
+    }
+
+    pub fn execute_io(&self, io_command: &IOCommand) -> () {
+        match io_command {
+            IOCommand::Write(expr) => self.execute_write(expr),
+            IOCommand::Read(var) => println!("<Read> Var: {:?}", var),
+        }
+    }
+
+    pub fn execute_write(&self, expr: &Expression) -> () {
+        match expr {
+            Expression::ConcreteValue(value) => self.write_concrete_value(value),
+            Expression::Identifier(var) => println!("<Write> Var: {:?}", var),
+            Expression::UnaryExp(op, expr) => println!("<Write> UnaryExp: {:?} | Expr: {:?}", op, expr),
+            Expression::BinaryExp(left, op, right) => println!("<Write> BinaryExp: {:?} | Left: {:?} | Right: {:?}", op, left, right),
+        }
+    }
+
+    pub fn write_concrete_value(&self, value: &ConcreteValue) -> () {
+        match value {
+            ConcreteValue::Value(value) => match value {
+                Value::Int(value) => println!("{}", value),
+                Value::Bool(value) => println!("{}", value),
+                Value::Str(value) => println!("{}", value),
+            }
+        }
     }
 }
