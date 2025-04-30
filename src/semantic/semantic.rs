@@ -5,7 +5,7 @@ use crate::ast::{
     UnaryOperator, Value,
 };
 
-use crate::enviroment::enviroment::{Environment, VariableInfo};
+use crate::environment::environment::{Environment, VariableInfo};
 
 #[derive(Debug, Clone)]
 pub struct SemanticAnalyzer {
@@ -303,8 +303,8 @@ impl SemanticAnalyzer {
                 self.env
                     .borrow_mut()
                     .procedures
-                    .insert(name.clone(), (params.clone(), None));
-
+                    .insert(name.clone(), (params.clone(), body.clone()));
+ 
                 // novo escopo para o corpo
                 let old_env = self.env.clone();
                 self.env = Environment::nest(&old_env);
