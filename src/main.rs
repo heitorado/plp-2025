@@ -27,7 +27,7 @@ fn main() {
 
     let sample_code_2 = r#"
     {
-      var x = 10; write(5)
+      var x = 10; write(not (not false))
     }"#;
 
     // let code = r#"{ var x = 10,
@@ -61,8 +61,9 @@ fn main() {
     match program {
         Ok((_, program)) => {
             let executor = Executor::new();
-            let result = executor.execute_program(&program);
-            println!("Result: {:?}", result)
+            // let result = executor.execute_program(&program);
+            // println!("Result: {:?}", result)
+            executor.execute_program(&program);
         }
         Err(e) => println!("Erro: {:?}", e),
     }

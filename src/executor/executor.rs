@@ -22,7 +22,7 @@ impl Executor {
             Command::IfElse(condition, then_branch, else_branch) => println!("<IfElse> Condition: {:?} | Then: {:?} | Else: {:?}", condition, then_branch, else_branch),//self.execute_if_else(condition, then_branch, else_branch),
             Command::IO(io_command) => self.execute_io(io_command),
             Command::Sequence(left, right) => println!("<Sequence> Left: {:?} | Right: {:?}", left, right),//self.execute_sequence(left, right),
-            Command::Skip => println!("Skip"),//self.execute_skip(),
+            Command::Skip => {},
             Command::CallProcedure(proc_name) => println!("<CallProcedure> ProcName: {:?}", proc_name),//self.execute_call_procedure(proc_name, args),
         }
     }
@@ -41,22 +41,90 @@ impl Executor {
         }
     }
 
+    // pub fn execute_write(&self, expr: &Expression) -> () {
+    //     match expr {
+    //         Expression::ConcreteValue(value) => self.write_concrete_value(value),
+    //         Expression::Identifier(var) => println!("<Write> Var: {:?}", var),
+    //         Expression::UnaryExp(op, expr) => self.execute_write(&self.execute_unary_expression(op, expr)),
+    //         Expression::BinaryExp(left, op, right) => println!("<Write> BinaryExp: {:?} | Left: {:?} | Right: {:?}", op, left, right),
+    //     }
+    // }
+
     pub fn execute_write(&self, expr: &Expression) -> () {
+        println!("{}", self.execute_expression(expr));
+    }
+
+    // pub fn write_concrete_value(&self, value: &ConcreteValue) -> () {
+    //     match value {
+    //         ConcreteValue::Value(value) => match value {
+    //             Value::Int(value) => println!("{}", value),
+    //             Value::Bool(value) => println!("{}", value),
+    //             Value::Str(value) => println!("{}", value),
+    //         }
+    //     }
+    // }
+
+    pub fn execute_expression(&self, expr: &Expression) -> Value {
         match expr {
-            Expression::ConcreteValue(value) => self.write_concrete_value(value),
-            Expression::Identifier(var) => println!("<Write> Var: {:?}", var),
-            Expression::UnaryExp(op, expr) => println!("<Write> UnaryExp: {:?} | Expr: {:?}", op, expr),
-            Expression::BinaryExp(left, op, right) => println!("<Write> BinaryExp: {:?} | Left: {:?} | Right: {:?}", op, left, right),
+            Expression::ConcreteValue(value) => self.execute_concrete_value(value),
+            Expression::Identifier(var) => format!("<Identifier> Var: {:?}", var),
+            Expression::UnaryExp(op, expr) => self.execute_unary_expression(op, expr),
+            Expression::BinaryExp(left, op, right) => format!("<BinaryExp> Op: {:?} | Left: {:?} | Right: {:?}", op, left, right),
         }
     }
 
-    pub fn write_concrete_value(&self, value: &ConcreteValue) -> () {
+    pub fn execute_concrete_value(&self, value: &ConcreteValue) -> String {
         match value {
             ConcreteValue::Value(value) => match value {
-                Value::Int(value) => println!("{}", value),
-                Value::Bool(value) => println!("{}", value),
-                Value::Str(value) => println!("{}", value),
+                Value::Int(value) => format!("{}", value),
+                Value::Bool(value) => format!("{}", value),
+                Value::Str(value) => format!("{}", value),
             }
         }
     }
+
+    pub fn execute_unary_expression(&self, op: &UnaryOperator, expr: &Expression) -> Value {
+        match op {
+            UnaryOperator::Not => {
+                match expr {
+                    Expression::ConcreteValue(value) => {
+                        match value {
+                            ConcreteValue::Value(value) => match value {
+                                Value::Bool(value) => Value::Bool(!value),
+                                _ => panic!("Invalid type for NOT operator: {:?}", value),
+                            }
+                        }
+                    },
+                    _ => !self.execute_expression(expr),
+                }
+            },
+            UnaryOperator::Neg => {
+                match expr {
+                    Expression::ConcreteValue(value) => {
+                        match value {
+                            ConcreteValue::Value(value) => match value {
+                                Value::Int(value) => Value::Int(-value),
+                                _ => panic!("Invalid type for NEG operator: {:?}", value),
+                            }
+                        }
+                    },
+                    _ => self.execute_expression(expr),
+                }
+            },
+            UnaryOperator::Length => {
+                match expr {
+                    Expression::ConcreteValue(value) => {
+                        match value {
+                            ConcreteValue::Value(value) => match value {
+                                Value::Str(value) => Value::Int(value.len()),
+                                _ => panic!("Invalid type for LENGTH operator: {:?}", value),
+                            }
+                        }
+                    },
+                    _ => self.execute_expression(expr),
+                }
+            },
+        }
+    }
+
 }
