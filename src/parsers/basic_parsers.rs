@@ -1,3 +1,4 @@
+use nom::sequence::delimited;
 use nom::{
     IResult, Parser,
     branch::alt,
@@ -19,6 +20,15 @@ pub fn ws_paren(input: &str) -> IResult<&str, &str> {
     take_while(|c: char| c.is_whitespace() || c == '(' || c == ')').parse(input)
 }
 
+pub fn lparen(input: &str) -> IResult<&str, &str> {
+    delimited(ws, tag("("), ws).parse(input)
+}
+
+// E similar para o fechamento:
+pub fn rparen(input: &str) -> IResult<&str, &str> {
+    delimited(ws, tag(")"), ws).parse(input)
+}
+
 // Parse para identificador
 pub fn parse_identifier(input: &str) -> IResult<&str, String> {
     let mut parser = recognize(pair(
@@ -32,11 +42,7 @@ pub fn parse_identifier(input: &str) -> IResult<&str, String> {
 
 pub fn parse_type(input: &str) -> IResult<&str, Type> {
     map(
-        alt((
-            tag("int"),
-            tag("string"),
-            tag("bool"),
-        )),
+        alt((tag("int"), tag("string"), tag("bool"))),
         |matched_str| match matched_str {
             "int" => crate::ast::Type::Int,
             "string" => crate::ast::Type::Str,

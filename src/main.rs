@@ -1,7 +1,7 @@
 fn main() {
-    use plp_2025::semantic::semantic::SemanticAnalyzer;
     use plp_2025::executor::executor::Executor;
     use plp_2025::parsers::program_parser;
+    use plp_2025::semantic::semantic::SemanticAnalyzer;
 
     // let code: &str = r#"{
     //             var x = 0,
@@ -30,6 +30,9 @@ fn main() {
       var x = 10; write(5)
     }"#;
 
+    let sample_code_3 = r#"
+        { var x = 1;  write(length("xxx")) }
+    "#;
     // let code = r#"{ var x = 10,
     //     proc usar_int(int a) { write(a) };
     //     call usar_int(x);
@@ -40,7 +43,7 @@ fn main() {
 
     // let code = r#""#;
 
-    let code = sample_code_2;
+    let code = sample_code_3;
     let program = program_parser::parse_program(code);
 
     // Análise Semântica

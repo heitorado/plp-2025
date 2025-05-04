@@ -1,5 +1,5 @@
 use crate::ast::Expression;
-use crate::parsers::basic_parsers::{parse_identifier, ws, ws_paren};
+use crate::parsers::basic_parsers::{lparen, parse_identifier, rparen, ws};
 use crate::parsers::concret_value_parsers::{parse_bool, parse_int, parse_string};
 use crate::parsers::operators_parsers::{parse_binary_operator, parse_unary_operator, precedence};
 use nom::sequence::preceded;
@@ -74,10 +74,7 @@ pub fn parse_primary(input: &str) -> IResult<&str, Expression> {
 
 fn parse_length_expression(input: &str) -> IResult<&str, Expression> {
     map(
-        preceded(
-            tag("length"),
-            delimited(ws_paren, parse_expression, ws_paren),
-        ),
+        preceded(tag("length"), delimited(lparen, parse_expression, rparen)),
         |expr| Expression::UnaryExp(crate::ast::UnaryOperator::Length, Box::new(expr)),
     )
     .parse(input)
