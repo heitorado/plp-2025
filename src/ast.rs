@@ -1,3 +1,5 @@
+use std::fmt;
+
 // Core (Programa)
 #[derive(Debug, Clone)]
 pub enum Program {
@@ -104,6 +106,16 @@ pub enum Value {
     Str(String),
     // Booleano
     Bool(bool),
+}
+
+impl fmt::Display for Value {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Value::Int(i) => write!(f, "{}", i),
+            Value::Str(s) => write!(f, "\"{}\"", s),
+            Value::Bool(b) => write!(f, "{}", b),
+        }
+    }
 }
 
 // #[derive(Debug, Clone, PartialEq, Eq)]

@@ -25,10 +25,22 @@ fn main() {
       write(b)
     }"#;
 
+    // Test UNARY and BINARY expressions
     let sample_code_2 = r#"
     {
-      var x = 10; write(not (not false))
+      var x = 10; write(not (not (not (not false)))); write(-(-(-2))); write(3); write(2 + 3); write(1 + 2 + 3 + 4 + 5); write(1 + 2 - 3); write(2 - 5); write(-(2 - 10)); write(2 == 2); write(not(2 == 2)); write(2 < 3); write(3 > 2); write(3 <= 3); write(3 >= 3); write("hello world"); write(2 == (1 + 3 - 2)); write("a" + "b" + "cde"); write(1 + (2 - (1 + (3 - (2 + (4 - (3 + (5 - 4))))))))
     }"#;
+
+    // Test IF-ELSE
+    // let sample_code_2 = r#"
+    // {
+    //   var x = 10;
+    //   if ((5+5) == (8+8-6)) then {
+    //     var z = 1; write("ten is equal to ten")
+    //   } else {
+    //     var w = 1; write("ten is not equal to ten")
+    //   }
+    // }"#;
 
     // let code = r#"{ var x = 10,
     //     proc usar_int(int a) { write(a) };
