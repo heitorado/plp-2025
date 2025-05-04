@@ -5,7 +5,7 @@ use crate::ast::{
     UnaryOperator, Value,
 };
 
-use crate::enviroment::enviroment::{Environment, VariableInfo};
+use crate::environment::environment::{Environment, VariableInfo};
 
 #[derive(Debug, Clone)]
 pub struct SemanticAnalyzer {
