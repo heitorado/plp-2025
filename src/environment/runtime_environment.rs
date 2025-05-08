@@ -1,16 +1,23 @@
-use crate::ast::{ProcedureParameter, Type};
+use crate::ast::{ProcedureParameter, Type, Value};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 
+// #[derive(Debug, Clone, PartialEq)]
+// pub enum RuntimeValue {
+//     Int(i64),
+//     Bool(bool),
+//     Str(String),
+// }
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableInfo {
-    pub type_: Type,
-    pub moved: bool,
+    // pub moved: bool,
+    pub value: Value,
 }
 
 #[derive(Debug, Clone)]
-pub struct Environment {
+pub struct RuntimeEnvironment {
     // Armazenar as varáveis
     // Tipo
     // foi movida
@@ -22,10 +29,10 @@ pub struct Environment {
     pub procedures: HashMap<String, (Vec<ProcedureParameter>, Option<Type>)>,
 
     // Blocos aninhados
-    pub parent: Option<Rc<RefCell<Environment>>>,
+    pub parent: Option<Rc<RefCell<RuntimeEnvironment>>>,
 }
 
-impl Environment {
+impl RuntimeEnvironment {
     pub fn new() -> Rc<RefCell<Self>> {
         Rc::new(RefCell::new(Self {
             variables: HashMap::new(),
@@ -34,7 +41,7 @@ impl Environment {
         }))
     }
 
-    pub fn nest(parent: &Rc<RefCell<Environment>>) -> Rc<RefCell<Self>> {
+    pub fn nest(parent: &Rc<RefCell<RuntimeEnvironment>>) -> Rc<RefCell<Self>> {
         Rc::new(RefCell::new(Self {
             variables: HashMap::new(),
             procedures: HashMap::new(),

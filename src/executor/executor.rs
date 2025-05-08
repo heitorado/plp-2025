@@ -1,20 +1,33 @@
-use crate::ast::*;
+use std::cell::RefCell;
+use std::rc::Rc;
+
+use crate::ast::{
+    BinaryOperator, Command, ConcreteValue, Declaration, Expression, IOCommand, Program, UnaryOperator, Value
+};
+
+use crate::environment::runtime_environment::{RuntimeEnvironment, VariableInfo};
 
 #[derive(Debug, Clone)]
-pub struct Executor {}
+pub struct Executor {
+    pub env: Rc<RefCell<RuntimeEnvironment>>,
+    pub errors: Vec<String>,
+}
 
 impl Executor {
     pub fn new() -> Self {
-        Executor {}
+        Executor {
+            env: RuntimeEnvironment::new(),
+            errors: Vec::new(),
+        }
     }
 
-    pub fn execute_program(&self, program: &Program) -> () {
+    pub fn execute_program(&mut self, program: &Program) -> () {
         match program {
             Program::Command(cmd) => self.execute_command(cmd),
         }
     }
 
-    pub fn execute_command(&self, cmd: &Command) -> () {
+    pub fn execute_command(&mut self, cmd: &Command) -> () {
         match cmd {
             Command::Assignment(var, expr, is_move) => println!("<Assignment> Var: {:?} | Expr: {:?} | IsMove: {:?}", var, expr, is_move),//self.execute_assignment(var, expr, *is_move),
             Command::DeclarationBlock(decls, body) => self.execute_declaration_block(decls, body),
@@ -27,14 +40,39 @@ impl Executor {
         }
     }
 
-    pub fn execute_declaration_block(&self, decls: &Vec<Declaration>, body: &Command) -> () {
-        println!("<DeclarationBlock> Decls: {:?}", decls);
-        // TODO: execute declaration block here...
-        println!("<DeclarationBlock> Body: {:?}", body);
+    pub fn execute_declaration_block(&mut self, decls: &Vec<Declaration>, body: &Command) -> () {
+        let old_env = self.env.clone();
+        self.env = RuntimeEnvironment::nest(&old_env);
+
+        for decl in decls {
+            self.execute_declaration(decl);
+        }
+            
         self.execute_command(body);
+
+        self.env = old_env;
     }
 
-    pub fn execute_ifelse(&self, condition: &Expression, then_branch: &Command, else_branch: &Command) -> () {
+    pub fn execute_declaration(&mut self, decl: &Declaration) -> () {
+        match decl {
+            Declaration::Compound(decl_1, decl_2 ) => {
+                self.execute_declaration(decl_1);
+                self.execute_declaration(decl_2);
+            }
+            Declaration::Variable(name, expr, _) => {
+                let value = self.execute_expression(expr);
+                self.env.borrow_mut().variables.insert(
+                    name.clone(),
+                    VariableInfo { value },
+                );
+
+                println!("Env State: {:?}", self.env.borrow_mut().variables);
+            },
+            _ => panic!("error")
+        }
+    }
+
+    pub fn execute_ifelse(&mut self, condition: &Expression, then_branch: &Command, else_branch: &Command) -> () {
         let condition_result = self.execute_expression(condition);
         match condition_result {
             Value::Bool(true) => self.execute_command(then_branch),
@@ -43,27 +81,39 @@ impl Executor {
         }
     }
 
-    pub fn execute_io(&self, io_command: &IOCommand) -> () {
+    pub fn execute_io(&mut self, io_command: &IOCommand) -> () {
         match io_command {
             IOCommand::Write(expr) => self.execute_write(expr),
             IOCommand::Read(var) => println!("<Read> Var: {:?}", var),
         }
     }
 
-    pub fn execute_write(&self, expr: &Expression) -> () {
+    pub fn execute_write(&mut self, expr: &Expression) -> () {
         println!("{}", self.execute_expression(expr));
     }
 
-    pub fn execute_expression(&self, expr: &Expression) -> Value {
+    pub fn execute_expression(&mut self, expr: &Expression) -> Value {
         match expr {
             Expression::ConcreteValue(value) => self.execute_concrete_value(value),
-            Expression::Identifier(var) => Value::Str(format!("<Identifier> Var: {:?}", var)),
+            Expression::Identifier(var) => {
+                let env = self.env.borrow();
+                // TODO: we cannot call unwrap on Err.
+                let variable = env.lookup_variable(var).ok_or_else(|| format!("Variável '{}' não definida", var));
+                match variable {
+                    Ok(variable_info) => {
+                        return variable_info.value;
+                    },
+                    Err(e) => {
+                        panic!("{e}")
+                    }
+                }
+            },
             Expression::UnaryExp(op, expr) => self.execute_unary_expression(op, expr),
             Expression::BinaryExp(left, op, right) => self.execute_binary_expression(left, op, right),
         }
     }
 
-    pub fn execute_concrete_value(&self, value: &ConcreteValue) -> Value {
+    pub fn execute_concrete_value(&mut self, value: &ConcreteValue) -> Value {
         match value {
             ConcreteValue::Value(value) => match value {
                 Value::Int(value) => Value::Int(*value),
@@ -73,7 +123,7 @@ impl Executor {
         }
     }
 
-    pub fn execute_unary_expression(&self, op: &UnaryOperator, expr: &Expression) -> Value {
+    pub fn execute_unary_expression(&mut self, op: &UnaryOperator, expr: &Expression) -> Value {
         match op {
             UnaryOperator::Not => {
                 match expr {
@@ -135,7 +185,7 @@ impl Executor {
         }
     }
 
-    pub fn execute_binary_expression(&self, op: &BinaryOperator, left: &Expression, right: &Expression) -> Value {
+    pub fn execute_binary_expression(&mut self, op: &BinaryOperator, left: &Expression, right: &Expression) -> Value {
         match op {
             BinaryOperator::Add => {
                 let left = self.execute_expression(left);

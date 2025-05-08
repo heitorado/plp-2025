@@ -26,10 +26,10 @@ fn main() {
     }"#;
 
     // Test UNARY and BINARY expressions
-    let sample_code_2 = r#"
-    {
-      var x = 10; write(not (not (not (not false)))); write(-(-(-2))); write(3); write(2 + 3); write(1 + 2 + 3 + 4 + 5); write(1 + 2 - 3); write(2 - 5); write(-(2 - 10)); write(2 == 2); write(not(2 == 2)); write(2 < 3); write(3 > 2); write(3 <= 3); write(3 >= 3); write("hello world"); write(2 == (1 + 3 - 2)); write("a" + "b" + "cde"); write(1 + (2 - (1 + (3 - (2 + (4 - (3 + (5 - 4))))))))
-    }"#;
+    // let sample_code_2 = r#"
+    // {
+    //   var x = 10; write(not (not (not (not false)))); write(-(-(-2))); write(3); write(2 + 3); write(1 + 2 + 3 + 4 + 5); write(1 + 2 - 3); write(2 - 5); write(-(2 - 10)); write(2 == 2); write(not(2 == 2)); write(2 < 3); write(3 > 2); write(3 <= 3); write(3 >= 3); write("hello world"); write(2 == (1 + 3 - 2)); write("a" + "b" + "cde"); write(1 + (2 - (1 + (3 - (2 + (4 - (3 + (5 - 4))))))))
+    // }"#;
 
     // Test IF-ELSE
     // let sample_code_2 = r#"
@@ -41,6 +41,18 @@ fn main() {
     //     var w = 1; write("ten is not equal to ten")
     //   }
     // }"#;
+
+    let sample_code_2 = r#"
+    {
+      var x = 10, var y = 5, var z = x+y; write(z); write(1+1); write(z+3);
+      {
+        var k = 10; write(k+k); write(2+6)
+      };
+
+      write(x+y+z);
+      write(k+z)
+    }
+    "#;
 
     // let code = r#"{ var x = 10,
     //     proc usar_int(int a) { write(a) };
@@ -54,6 +66,8 @@ fn main() {
 
     let code = sample_code_2;
     let program = program_parser::parse_program(code);
+
+    println!("Program: {:?}", program);
 
     // Análise Semântica
     match program {
@@ -72,7 +86,7 @@ fn main() {
     // Execução
     match program {
         Ok((_, program)) => {
-            let executor = Executor::new();
+            let mut executor = Executor::new();
             // let result = executor.execute_program(&program);
             // println!("Result: {:?}", result)
             executor.execute_program(&program);
