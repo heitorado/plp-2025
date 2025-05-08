@@ -31,7 +31,7 @@ impl Executor {
         match cmd {
             Command::Assignment(var, expr, is_move) => self.execute_assignment(var, expr, is_move), //println!("<Assignment> Var: {:?} | Expr: {:?} | IsMove: {:?}", var, expr, is_move),//self.execute_assignment(var, expr, *is_move),
             Command::DeclarationBlock(decls, body) => self.execute_declaration_block(decls, body),
-            Command::WhileLoop(condition, body) => println!("<WhileLoop> Condition: {:?} | Body: {:?}", condition, body),//self.execute_while_loop(condition, body),
+            Command::WhileLoop(condition, body) => self.execute_while_loop(condition, body),//println!("<WhileLoop> Condition: {:?} | Body: {:?}", condition, body),//self.execute_while_loop(condition, body),
             Command::IfElse(condition, then_branch, else_branch) => self.execute_ifelse(condition, then_branch, else_branch),
             Command::IO(io_command) => self.execute_io(io_command),
             Command::Sequence(left, right) => { self.execute_command(left); self.execute_command(right); }
@@ -83,6 +83,16 @@ impl Executor {
         self.env = old_env;
     }
 
+    pub fn execute_while_loop(&mut self, condition: &Expression, body: &Command) -> () {
+        loop {
+            let condition_result = self.execute_expression(condition);
+            match condition_result {
+                Value::Bool(true) => self.execute_command(body),
+                Value::Bool(false) => break,
+                _ => panic!("Invalid type for WHILE condition: {:?}", condition_result),
+            }
+        }
+    }
     pub fn execute_declaration(&mut self, decl: &Declaration) -> () {
         match decl {
             Declaration::Compound(decl_1, decl_2 ) => {
