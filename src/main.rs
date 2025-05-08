@@ -13,7 +13,7 @@ fn main() {
 
     let _sample_code_1 = r#"
     {
-      var b = 3,
+      var b = 3, var c = 1,
       proc escreveRecursivo (int a) {
         if (not (a == 0)) then {
           var x = 0; x := a - 1;
@@ -22,6 +22,7 @@ fn main() {
         } else skip
       };
 
+      call escreveRecursivo(b);
       write(b)
     }"#;
 
@@ -42,15 +43,35 @@ fn main() {
     //   }
     // }"#;
 
+    // let sample_code_2 = r#"
+    // {
+    //   var x = 10, var y = 5, var z = x+y, var seraqueda = true; write(z); write(1+1); write(z+3);
+    //   {
+    //     var k = 10; write(k+k); write(2+6); write(-z); write(-(x-y+z))
+    //   };
+    //
+    //   write(x+y+z);
+    //   write(not (not seraqueda));
+    //   write(k+z)
+    // }
+    // "#;
+
     let sample_code_2 = r#"
     {
-      var x = 10, var y = 5, var z = x+y; write(z); write(1+1); write(z+3);
+      var x = 10, var y = 99, var z = 1;
+      write(x); 
+      write(y);
+      x := y;
+      z := y;
+      write(x);
       {
-        var k = 10; write(k+k); write(2+6)
+        x := 10000;
+        b := 9;
+        write(x);
+        write(b)
       };
 
-      write(x+y+z);
-      write(k+z)
+      write(x)
     }
     "#;
 
@@ -71,17 +92,15 @@ fn main() {
 
     // Análise Semântica
     match program {
-        Ok((_, program)) => {
+        Ok((_, ref program)) => {
             let mut analyzer = SemanticAnalyzer::new();
             let result = analyzer.check_program(&program);
             println!("Semantic Analysis: {:?}", result)
         }
-        Err(e) => println!("Erro: {:?}", e),
+        Err(ref e) => panic!("Erro: {:?}", e)
     }
 
     println!("Running...");
-    // TODO: solve borrow problem above to avoid shadowing the program variable here
-    let program = program_parser::parse_program(code);
 
     // Execução
     match program {

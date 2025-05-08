@@ -26,10 +26,10 @@ impl Executor {
             Program::Command(cmd) => self.execute_command(cmd),
         }
     }
-
+    
     pub fn execute_command(&mut self, cmd: &Command) -> () {
         match cmd {
-            Command::Assignment(var, expr, is_move) => println!("<Assignment> Var: {:?} | Expr: {:?} | IsMove: {:?}", var, expr, is_move),//self.execute_assignment(var, expr, *is_move),
+            Command::Assignment(var, expr, is_move) => self.execute_assignment(var, expr, is_move), //println!("<Assignment> Var: {:?} | Expr: {:?} | IsMove: {:?}", var, expr, is_move),//self.execute_assignment(var, expr, *is_move),
             Command::DeclarationBlock(decls, body) => self.execute_declaration_block(decls, body),
             Command::WhileLoop(condition, body) => println!("<WhileLoop> Condition: {:?} | Body: {:?}", condition, body),//self.execute_while_loop(condition, body),
             Command::IfElse(condition, then_branch, else_branch) => self.execute_ifelse(condition, then_branch, else_branch),
@@ -38,6 +38,36 @@ impl Executor {
             Command::Skip => {},
             Command::CallProcedure(proc_name) => println!("<CallProcedure> ProcName: {:?}", proc_name),//self.execute_call_procedure(proc_name, args),
         }
+    }
+
+    // TODO: make use of is_move
+    pub fn execute_assignment(&mut self, var: &String, expr: &Expression, is_move: &bool) -> () {
+        let new_value = self.execute_expression(expr);
+
+        let mut current_env = self.env.clone();
+        loop {
+            let found = {
+                let mut env = current_env.borrow_mut();
+                if let Some(v) = env.variables.get_mut(var) {
+                    v.value = new_value.clone();
+                    true
+                } else {
+                    false
+                }
+            };
+
+            if found {
+                return;
+            }
+
+            let parent = match &current_env.borrow().parent {
+                Some(p) => p.clone(),
+                None => break
+            };
+
+            current_env = parent;
+        }
+        panic!("Atribuição inválida. Variável '{}' não declarada.", var);
     }
 
     pub fn execute_declaration_block(&mut self, decls: &Vec<Declaration>, body: &Command) -> () {
@@ -59,7 +89,7 @@ impl Executor {
                 self.execute_declaration(decl_1);
                 self.execute_declaration(decl_2);
             }
-            Declaration::Variable(name, expr, _) => {
+            Declaration::Variable(name, expr, was_moved) => {
                 let value = self.execute_expression(expr);
                 self.env.borrow_mut().variables.insert(
                     name.clone(),
@@ -68,7 +98,7 @@ impl Executor {
 
                 println!("Env State: {:?}", self.env.borrow_mut().variables);
             },
-            _ => panic!("error")
+            _ => panic!("Error executing declaration [NOT SUPPORTED]: {:?}", decl)
         }
     }
 
@@ -97,7 +127,6 @@ impl Executor {
             Expression::ConcreteValue(value) => self.execute_concrete_value(value),
             Expression::Identifier(var) => {
                 let env = self.env.borrow();
-                // TODO: we cannot call unwrap on Err.
                 let variable = env.lookup_variable(var).ok_or_else(|| format!("Variável '{}' não definida", var));
                 match variable {
                     Ok(variable_info) => {
