@@ -42,11 +42,12 @@ pub fn parse_identifier(input: &str) -> IResult<&str, String> {
 
 pub fn parse_type(input: &str) -> IResult<&str, Type> {
     map(
-        alt((tag("int"), tag("string"), tag("bool"))),
+        alt((tag("int"), tag("string"), tag("bool"), tag("unit"))),
         |matched_str| match matched_str {
             "int" => crate::ast::Type::Int,
             "string" => crate::ast::Type::Str,
             "bool" => crate::ast::Type::Bool,
+            "unit" => crate::ast::Type::Unit,
             _ => unreachable!(),
         },
     )

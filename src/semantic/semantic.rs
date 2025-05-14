@@ -103,64 +103,67 @@ impl SemanticAnalyzer {
                 Ok(())
             }
             Command::Skip => Ok(()),
-            Command::CallProcedure(call) => {
-                // Busca o procedimento
-                let procedure_info = self
-                    .env
-                    .borrow()
-                    .lookup_procedure(&call.id)
-                    .ok_or_else(|| vec![format!("Procedure '{}' não foi declarada", call.id)])?;
-
-                // Verificações iniciais sem modificar o estado
-                if call.args.len() != procedure_info.0.len() {
-                    self.report_error(format!(
-                        "Esperados {} parâmetros, recebidos {} na chamada de {}",
-                        procedure_info.0.len(),
-                        call.args.len(),
-                        call.id
-                    ));
-                }
-
-                // Coletar variáveis para mover após verificação de tipos
-                let mut vars_to_move = Vec::new();
-
-                for (arg, param) in call.args.iter().zip(procedure_info.0.iter()) {
-                    let arg_type = self.check_expression(arg)?;
-
-                    if arg_type != param.r#type {
-                        self.report_error(format!(
-                            "Tipo incompatível para parâmetro '{}': esperado {:?}, recebido {:?}",
-                            param.identifier, param.r#type, arg_type
-                        ));
-                    }
-
-                    // Coletar identificadores para mover depois
-                    if let Expression::Identifier(var_name) = arg {
-                        vars_to_move.push(var_name.clone());
-                    }
-                }
-
-                // Modificações de estado separadamente
-                for var_name in vars_to_move {
-                    // Verificando o estado
-                    let is_already_moved = {
-                        let env = self.env.borrow();
-                        env.lookup_variable(&var_name)
-                            .map(|info| info.moved)
-                            .unwrap_or(false)
-                    };
-
-                    if is_already_moved {
-                        self.report_error(format!(
-                            "Variável '{}' já foi movida anteriormente",
-                            var_name
-                        ));
-                    }
-                    self.mark_variable_as_moved(&var_name);
-                }
-
+            Command::Evaluate(expr) => {
+                let _ = self.check_expression(expr)?;
                 Ok(())
-            }
+            } // Command::CallProcedure(call) => {
+              //     // Busca o procedimento
+              //     let procedure_info = self
+              //         .env
+              //         .borrow()
+              //         .lookup_procedure(&call.id)
+              //         .ok_or_else(|| vec![format!("Procedure '{}' não foi declarada", call.id)])?;
+
+              //     // Verificações iniciais sem modificar o estado
+              //     if call.args.len() != procedure_info.0.len() {
+              //         self.report_error(format!(
+              //             "Esperados {} parâmetros, recebidos {} na chamada de {}",
+              //             procedure_info.0.len(),
+              //             call.args.len(),
+              //             call.id
+              //         ));
+              //     }
+
+              //     // Coletar variáveis para mover após verificação de tipos
+              //     let mut vars_to_move = Vec::new();
+
+              //     for (arg, param) in call.args.iter().zip(procedure_info.0.iter()) {
+              //         let arg_type = self.check_expression(arg)?;
+
+              //         if arg_type != param.r#type {
+              //             self.report_error(format!(
+              //                 "Tipo incompatível para parâmetro '{}': esperado {:?}, recebido {:?}",
+              //                 param.identifier, param.r#type, arg_type
+              //             ));
+              //         }
+
+              //         // Coletar identificadores para mover depois
+              //         if let Expression::Identifier(var_name) = arg {
+              //             vars_to_move.push(var_name.clone());
+              //         }
+              //     }
+
+              //     // Modificações de estado separadamente
+              //     for var_name in vars_to_move {
+              //         // Verificando o estado
+              //         let is_already_moved = {
+              //             let env = self.env.borrow();
+              //             env.lookup_variable(&var_name)
+              //                 .map(|info| info.moved)
+              //                 .unwrap_or(false)
+              //         };
+
+              //         if is_already_moved {
+              //             self.report_error(format!(
+              //                 "Variável '{}' já foi movida anteriormente",
+              //                 var_name
+              //             ));
+              //         }
+              //         self.mark_variable_as_moved(&var_name);
+              //     }
+
+              //     Ok(())
+              // }
         }
     }
 
@@ -241,6 +244,14 @@ impl SemanticAnalyzer {
         }
     }
 
+    fn get_last_expression_type(&mut self, cmd: &Command) -> Type {
+        match cmd {
+            Command::Sequence(_, cmd2) => self.get_last_expression_type(cmd2),
+            Command::Evaluate(expr) => self.check_expression(expr).unwrap_or(Type::Unit),
+            _ => Type::Unit,
+        }
+    }
+
     pub fn check_declaration(&mut self, decl: &Declaration) -> Result<(), Vec<String>> {
         match decl {
             Declaration::Variable(name, expr, is_move) => {
@@ -288,10 +299,9 @@ impl SemanticAnalyzer {
 
                 Ok(())
             }
-            Declaration::Procedure(name, params, body) => {
-                // Duplicadas
+            Declaration::Procedure(name, params, return_type, body) => {
+                // Verificar parâmetros duplicados
                 let mut param_names = HashSet::new();
-
                 for param in params {
                     if param_names.contains(&param.identifier) {
                         self.report_error(format!("Parâmetro duplicado: {}", param.identifier));
@@ -299,17 +309,17 @@ impl SemanticAnalyzer {
                     param_names.insert(param.identifier.clone());
                 }
 
-                // Procedimento no ambiente
+                // Registrar procedimento no ambiente com tipo de retorno
                 self.env
                     .borrow_mut()
                     .procedures
-                    .insert(name.clone(), (params.clone(), None));
+                    .insert(name.clone(), (params.clone(), return_type.clone()));
 
-                // novo escopo para o corpo
+                // Criar novo escopo para o corpo
                 let old_env = self.env.clone();
                 self.env = Environment::nest(&old_env);
 
-                // adiciona parâmetros ao ambiente
+                // Adicionar parâmetros ao ambiente
                 for param in params {
                     self.env.borrow_mut().variables.insert(
                         param.identifier.clone(),
@@ -321,13 +331,24 @@ impl SemanticAnalyzer {
                     );
                 }
 
-                // Corpo da funcao
+                // Verificar corpo do procedimento
                 self.check_command(body)?;
 
-                self.env = old_env;
+                // Verificar tipo de retorno se necessário
+                if let Some(declared_type) = return_type {
+                    let body_type = self.get_last_expression_type(body);
+                    if body_type != *declared_type {
+                        self.report_error(format!(
+                            "Tipo de retorno incompatível: esperado {:?}, encontrado {:?}",
+                            declared_type, body_type
+                        ));
+                    }
+                }
 
+                self.env = old_env;
                 Ok(())
             }
+
             Declaration::Compound(d1, d2) => {
                 self.check_declaration(d1)?;
                 self.check_declaration(d2)?;
@@ -428,6 +449,43 @@ impl SemanticAnalyzer {
                         }
                         Ok(Type::Bool)
                     }
+                }
+            }
+            Expression::CallProcedure(call) => {
+                let proc_info = self
+                    .env
+                    .borrow()
+                    .lookup_procedure(&call.id)
+                    .ok_or_else(|| vec![format!("Procedimento não declarado: {}", call.id)])?;
+
+                // Verificar número de argumentos
+                if call.args.len() != proc_info.0.len() {
+                    self.report_error(format!(
+                        "Número incorreto de argumentos para {}: esperado {}, obtido {}",
+                        call.id,
+                        proc_info.0.len(),
+                        call.args.len()
+                    ));
+                }
+
+                // Verificar tipos dos argumentos
+                for (i, (arg, param)) in call.args.iter().zip(proc_info.0.iter()).enumerate() {
+                    let arg_type = self.check_expression(arg)?;
+                    if arg_type != param.r#type {
+                        self.report_error(format!(
+                            "Tipo inválido para argumento {} em {}: esperado {:?}, obtido {:?}",
+                            i + 1,
+                            call.id,
+                            param.r#type,
+                            arg_type
+                        ));
+                    }
+                }
+
+                // Obter tipo de retorno do procedimento
+                match &proc_info.1 {
+                    Some(t) => Ok(t.clone()),
+                    None => Ok(Type::Unit),
                 }
             }
         }

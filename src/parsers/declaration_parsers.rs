@@ -6,16 +6,20 @@ use crate::parsers::expression_parsers::parse_expression;
 use nom::Parser;
 use nom::branch::alt;
 use nom::combinator::opt;
+use nom::sequence::preceded;
 use nom::{
     IResult, bytes::complete::tag, combinator::map, multi::separated_list1, sequence::delimited,
 };
 // Parser principal para declarações
 pub fn parse_declaration(input: &str) -> IResult<&str, Declaration> {
+    println!("Input 1 {}", input);
     let (input, declarations) = separated_list1(
         delimited(ws, tag(","), ws),
         alt((parse_single_declaration, parse_procedure_declaration)),
     )
     .parse(input)?;
+
+    println!("Input 2 {}", input);
 
     let combined = declarations
         .into_iter()
@@ -63,21 +67,56 @@ pub fn parse_procedure_parameters(input: &str) -> IResult<&str, Vec<ProcedurePar
 }
 
 pub fn parse_procedure_declaration(input: &str) -> IResult<&str, Declaration> {
+    println!("{}", input);
     map(
         (
-            tag("proc"),
-            delimited(ws, parse_identifier, ws),
+            preceded(ws, tag("proc")),
+            preceded(ws, parse_identifier), // Nome
             delimited(
+                // Parâmetros
                 tag("("),
-                delimited(ws, opt(parse_procedure_parameters), ws),
+                opt(parse_procedure_parameters),
                 tag(")"),
             ),
-            ws,
-            delimited(tag("{"), delimited(ws, parse_command, ws), tag("}")),
+            delimited(ws, opt(parse_type), ws),
+            delimited(
+                delimited(ws, tag("{"), ws),
+                parse_command,
+                delimited(ws, tag("}"), ws),
+            ),
         ),
-        |(_, name, parameters, _, body)| {
-            Declaration::Procedure(name, parameters.unwrap_or_default(), Box::new(body))
+        |(_, name, parameters, return_type, body)| {
+            Declaration::Procedure(
+                name,
+                parameters.unwrap_or_default(),
+                return_type,
+                Box::new(body),
+            )
         },
     )
     .parse(input)
 }
+
+// pub fn parse_procedure_declaration(input: &str) -> IResult<&str, Declaration> {
+//     map(
+//         (
+//             tag("proc"),
+//             delimited(ws, parse_identifier, ws),
+//             delimited(tag("("), opt(parse_procedure_parameters), tag(")")),
+//             opt(preceded(
+//                 delimited(ws, tag("->"), ws),
+//                 delimited(ws, parse_type, ws),
+//             )),
+//             delimited(tag("{"), delimited(ws, parse_command, ws), tag("}")),
+//         ),
+//         |(_, name, parameters, return_type, body)| {
+//             Declaration::Procedure(
+//                 name,
+//                 parameters.unwrap_or_default(),
+//                 return_type,
+//                 Box::new(body),
+//             )
+//         },
+//     )
+//     .parse(input)
+// }

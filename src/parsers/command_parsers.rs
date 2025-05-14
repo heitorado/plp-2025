@@ -1,8 +1,8 @@
-use crate::ast::{CallProcedure, Command, IOCommand};
+use crate::ast::{Command, IOCommand};
 use crate::parsers::basic_parsers::{parse_identifier, ws};
 use crate::parsers::declaration_parsers::parse_declaration;
 use crate::parsers::expression_parsers::parse_expression;
-use nom::multi::{many0, separated_list1};
+use nom::multi::many0;
 use nom::sequence::{pair, terminated};
 use nom::{
     IResult,
@@ -14,17 +14,19 @@ use nom::{
     sequence::{delimited, preceded},
 };
 
-use super::expression_parsers::parse_expression_atomic;
+use super::expression_parsers::parse_call_expression;
+
 // Parser principal
 pub fn parse_command(input: &str) -> IResult<&str, Command> {
     let (input, cmd) = alt((
+        parse_call_procedure,
         parse_assignment,
         parse_if_else,
         parse_while_loop,
         parse_io_command,
         parse_skip,
         parse_declaration_block,
-        parse_call_procedure,
+        parse_evaluate,
     ))
     .parse(input)?;
 
@@ -34,13 +36,14 @@ pub fn parse_command(input: &str) -> IResult<&str, Command> {
 // Parse command helper with another order of parsers to help the parse_declaration_block to processo complex code
 fn parse_command_with_sequence(input: &str) -> IResult<&str, Command> {
     let (input, initial_cmd) = alt((
+        parse_call_procedure,
         parse_if_else,
         parse_while_loop,
         parse_assignment,
         parse_io_command,
         parse_skip,
         parse_declaration_block,
-        parse_call_procedure,
+        parse_evaluate,
     ))
     .parse(input)?;
 
@@ -149,22 +152,33 @@ fn parse_skip(input: &str) -> IResult<&str, Command> {
     value(Command::Skip, tag("skip")).parse(input)
 }
 
-pub fn parse_call_procedure(input: &str) -> IResult<&str, Command> {
-    let (input, _) = delimited(ws, tag("call"), ws).parse(input)?;
-    let (input, id) = parse_identifier(input)?;
-    let (input, _) = delimited(ws, tag("("), ws).parse(input)?;
-    let (input, exps) = opt(separated_list1(
-        delimited(ws, tag(","), ws),
-        parse_expression_atomic,
-    ))
-    .parse(input)?;
-    let (input, _) = delimited(ws, tag(")"), ws).parse(input)?;
-
-    Ok((
-        input,
-        Command::CallProcedure(CallProcedure {
-            id,
-            args: exps.unwrap_or_default(),
-        }),
-    ))
+fn parse_evaluate(input: &str) -> IResult<&str, Command> {
+    map(parse_expression, |expr| Command::Evaluate(expr)).parse(input)
 }
+
+fn parse_call_procedure(input: &str) -> IResult<&str, Command> {
+    let (input, _) = delimited(ws, tag("call"), ws).parse(input)?;
+    let (input, call_expr) = delimited(ws, parse_call_expression, ws).parse(input)?;
+
+    Ok((input, Command::Evaluate(call_expr)))
+}
+
+// pub fn parse_call_procedure(input: &str) -> IResult<&str, Command> {
+//     let (input, _) = delimited(ws, tag("call"), ws).parse(input)?;
+//     let (input, id) = parse_identifier(input)?;
+//     let (input, _) = delimited(ws, tag("("), ws).parse(input)?;
+//     let (input, exps) = opt(separated_list1(
+//         delimited(ws, tag(","), ws),
+//         parse_expression_atomic,
+//     ))
+//     .parse(input)?;
+//     let (input, _) = delimited(ws, tag(")"), ws).parse(input)?;
+
+//     Ok((
+//         input,
+//         Command::CallProcedure(CallProcedure {
+//             id,
+//             args: exps.unwrap_or_default(),
+//         }),
+//     ))
+// }

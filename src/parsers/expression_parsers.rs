@@ -1,7 +1,8 @@
-use crate::ast::Expression;
+use crate::ast::{CallProcedure, Expression};
 use crate::parsers::basic_parsers::{lparen, parse_identifier, rparen, ws};
 use crate::parsers::concret_value_parsers::{parse_bool, parse_int, parse_string};
 use crate::parsers::operators_parsers::{parse_binary_operator, parse_unary_operator, precedence};
+use nom::multi::separated_list0;
 use nom::sequence::preceded;
 use nom::{
     IResult, Parser, branch::alt, bytes::complete::tag, combinator::map, sequence::delimited,
@@ -30,8 +31,9 @@ pub fn parse_expression_atomic(input: &str) -> IResult<&str, Expression> {
         ws,
         alt((
             parse_concrete_value,
-            map(parse_identifier, Expression::Identifier),
             parse_parenthesized,
+            parse_call_expression,
+            map(parse_identifier, Expression::Identifier),
         )),
         ws,
     )
@@ -86,6 +88,18 @@ pub fn parse_unary_expression(input: &str) -> IResult<&str, Expression> {
     let (input, exp) = parse_expr_bp(input, 100)?; // Alta precedência
 
     Ok((input, Expression::UnaryExp(op, Box::new(exp))))
+}
+
+pub fn parse_call_expression(input: &str) -> IResult<&str, Expression> {
+    let (input, id) = parse_identifier(input)?;
+    let (input, args) = delimited(
+        delimited(ws, tag("("), ws),
+        separated_list0(delimited(ws, tag(","), ws), parse_expression_atomic),
+        delimited(ws, tag(")"), ws),
+    )
+    .parse(input)?;
+
+    Ok((input, Expression::CallProcedure(CallProcedure { id, args })))
 }
 
 // Primeiro teste

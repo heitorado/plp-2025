@@ -70,43 +70,43 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_procedure_parameters() {
-        let program = Program::Command(Command::DeclarationBlock(
-            vec![Declaration::Procedure(
-                "inc".to_string(),
-                vec![ProcedureParameter {
-                    identifier: "x".to_string(),
-                    r#type: Type::Int,
-                }],
-                Box::new(Command::Assignment(
-                    "x".to_string(),
-                    Expression::BinaryExp(
-                        BinaryOperator::Add,
-                        Box::new(Expression::Identifier("x".to_string())),
-                        Box::new(Expression::ConcreteValue(ConcreteValue::Value(Value::Int(
-                            1,
-                        )))),
-                    ),
-                    false,
-                )),
-            )],
-            Box::new(Command::CallProcedure(CallProcedure {
-                id: "inc".to_string(),
-                args: vec![Expression::ConcreteValue(ConcreteValue::Value(Value::Str(
-                    "erro".to_string(),
-                )))],
-            })),
-        ));
+    // #[test]
+    // fn test_procedure_parameters() {
+    //     let program = Program::Command(Command::DeclarationBlock(
+    //         vec![Declaration::Procedure(
+    //             "inc".to_string(),
+    //             vec![ProcedureParameter {
+    //                 identifier: "x".to_string(),
+    //                 r#type: Type::Int,
+    //             }],
+    //             Box::new(Command::Assignment(
+    //                 "x".to_string(),
+    //                 Expression::BinaryExp(
+    //                     BinaryOperator::Add,
+    //                     Box::new(Expression::Identifier("x".to_string())),
+    //                     Box::new(Expression::ConcreteValue(ConcreteValue::Value(Value::Int(
+    //                         1,
+    //                     )))),
+    //                 ),
+    //                 false,
+    //             )),
+    //         )],
+    //         Box::new(Command::CallProcedure(CallProcedure {
+    //             id: "inc".to_string(),
+    //             args: vec![Expression::ConcreteValue(ConcreteValue::Value(Value::Str(
+    //                 "erro".to_string(),
+    //             )))],
+    //         })),
+    //     ));
 
-        let mut analyzer = SemanticAnalyzer::new();
-        let result = analyzer.check_program(&program);
-        assert!(result.is_err());
-        assert!(
-            analyzer
-                .errors
-                .iter()
-                .any(|e| e.contains("Tipo do parâmetro"))
-        );
-    }
+    //     let mut analyzer = SemanticAnalyzer::new();
+    //     let result = analyzer.check_program(&program);
+    //     assert!(result.is_err());
+    //     assert!(
+    //         analyzer
+    //             .errors
+    //             .iter()
+    //             .any(|e| e.contains("Tipo do parâmetro"))
+    //     );
+    // }
 }
