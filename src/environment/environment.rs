@@ -7,7 +7,6 @@ use std::rc::Rc;
 pub struct VariableInfo {
     pub type_: Type,
     pub moved: bool,
-    pub mutable: bool,
 }
 
 #[derive(Debug, Clone)]
