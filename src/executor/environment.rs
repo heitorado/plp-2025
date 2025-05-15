@@ -1,34 +1,18 @@
-use crate::ast::{ProcedureParameter, Type, Value};
+use crate::ast::{Command, ProcedureParameter, Type, Value};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 
-// #[derive(Debug, Clone, PartialEq)]
-// pub enum RuntimeValue {
-//     Int(i64),
-//     Bool(bool),
-//     Str(String),
-// }
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct VariableInfo {
-    // pub moved: bool,
+#[derive(Debug, Clone)]
+pub struct RuntimeVariable {
     pub value: Value,
+    pub moved: bool,
 }
 
 #[derive(Debug, Clone)]
 pub struct RuntimeEnvironment {
-    // Armazenar as varáveis
-    // Tipo
-    // foi movida
-    // se é mutável
-    pub variables: HashMap<String, VariableInfo>,
-
-    // Funções
-    // Parametros
-    pub procedures: HashMap<String, (Vec<ProcedureParameter>, Option<Type>)>,
-
-    // Blocos aninhados
+    pub variables: HashMap<String, RuntimeVariable>,
+    pub procedures: HashMap<String, (Vec<ProcedureParameter>, Option<Type>, Command)>,
     pub parent: Option<Rc<RefCell<RuntimeEnvironment>>>,
 }
 
@@ -50,7 +34,7 @@ impl RuntimeEnvironment {
     }
 
     // Buscar variaveis em todos os escopos
-    pub fn lookup_variable(&self, name: &str) -> Option<VariableInfo> {
+    pub fn lookup_variable(&self, name: &str) -> Option<RuntimeVariable> {
         self.variables.get(name).cloned().or_else(|| {
             self.parent
                 .as_ref()
@@ -59,11 +43,16 @@ impl RuntimeEnvironment {
     }
 
     // Buscar funcoes em todos os escopos
-    pub fn lookup_procedure(&self, name: &str) -> Option<(Vec<ProcedureParameter>, Option<Type>)> {
-        self.procedures.get(name).cloned().or_else(|| {
-            self.parent
-                .as_ref()
-                .and_then(|parent| parent.borrow().lookup_procedure(name))
-        })
+    pub fn lookup_procedure(
+        &self,
+        name: &str,
+    ) -> Option<(Vec<ProcedureParameter>, Option<Type>, Command)> {
+        self.procedures
+            .get(name)
+            .cloned()
+            .or_else(|| match &self.parent {
+                Some(parent) => parent.borrow().lookup_procedure(name),
+                None => None,
+            })
     }
 }

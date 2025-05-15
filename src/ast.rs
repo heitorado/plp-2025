@@ -1,4 +1,4 @@
-use std::fmt;
+use std::fmt::{self};
 
 // Core (Programa)
 #[derive(Debug, Clone)]
@@ -108,6 +108,7 @@ pub enum Value {
     Str(String),
     // Booleano
     Bool(bool),
+    Unit,
 }
 
 impl fmt::Display for Value {
@@ -116,6 +117,7 @@ impl fmt::Display for Value {
             Value::Int(i) => write!(f, "{}", i),
             Value::Str(s) => write!(f, "\"{}\"", s),
             Value::Bool(b) => write!(f, "{}", b),
+            Value::Unit => write!(f, "",),
         }
     }
 }

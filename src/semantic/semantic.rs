@@ -106,64 +106,7 @@ impl SemanticAnalyzer {
             Command::Evaluate(expr) => {
                 let _ = self.check_expression(expr)?;
                 Ok(())
-            } // Command::CallProcedure(call) => {
-              //     // Busca o procedimento
-              //     let procedure_info = self
-              //         .env
-              //         .borrow()
-              //         .lookup_procedure(&call.id)
-              //         .ok_or_else(|| vec![format!("Procedure '{}' não foi declarada", call.id)])?;
-
-              //     // Verificações iniciais sem modificar o estado
-              //     if call.args.len() != procedure_info.0.len() {
-              //         self.report_error(format!(
-              //             "Esperados {} parâmetros, recebidos {} na chamada de {}",
-              //             procedure_info.0.len(),
-              //             call.args.len(),
-              //             call.id
-              //         ));
-              //     }
-
-              //     // Coletar variáveis para mover após verificação de tipos
-              //     let mut vars_to_move = Vec::new();
-
-              //     for (arg, param) in call.args.iter().zip(procedure_info.0.iter()) {
-              //         let arg_type = self.check_expression(arg)?;
-
-              //         if arg_type != param.r#type {
-              //             self.report_error(format!(
-              //                 "Tipo incompatível para parâmetro '{}': esperado {:?}, recebido {:?}",
-              //                 param.identifier, param.r#type, arg_type
-              //             ));
-              //         }
-
-              //         // Coletar identificadores para mover depois
-              //         if let Expression::Identifier(var_name) = arg {
-              //             vars_to_move.push(var_name.clone());
-              //         }
-              //     }
-
-              //     // Modificações de estado separadamente
-              //     for var_name in vars_to_move {
-              //         // Verificando o estado
-              //         let is_already_moved = {
-              //             let env = self.env.borrow();
-              //             env.lookup_variable(&var_name)
-              //                 .map(|info| info.moved)
-              //                 .unwrap_or(false)
-              //         };
-
-              //         if is_already_moved {
-              //             self.report_error(format!(
-              //                 "Variável '{}' já foi movida anteriormente",
-              //                 var_name
-              //             ));
-              //         }
-              //         self.mark_variable_as_moved(&var_name);
-              //     }
-
-              //     Ok(())
-              // }
+            }
         }
     }
 
@@ -173,39 +116,50 @@ impl SemanticAnalyzer {
         expr: &Expression,
         is_move: bool,
     ) -> Result<(), Vec<String>> {
-        // Variável existe?
-        let var_info = self
-            .env
-            .borrow()
-            .lookup_variable(var)
-            .ok_or_else(|| vec![format!("Variável não declarada: {}", var)])?;
+        let rhs_type = self.check_expression(expr)?;
 
-        // Verifica se variável foi movida
-        if var_info.moved {
-            self.report_error(format!("Variável '{}' já foi movida.", var));
-        }
-
-        // Expressão
-        let expr_type = self.check_expression(expr)?;
-
-        // Types
-        if expr_type != var_info.type_ {
-            self.report_error(format!(
-                "Tipo incompatível para '{}': esperado {:?}, encontrado {:?}",
-                var, var_info.type_, expr_type
-            ))
-        }
-
-        // Atualiza o estado se estiver movendo
         if is_move {
-            if let Expression::Identifier(moved_var) = expr {
-                self.mark_as_moved(moved_var);
+            if let Expression::Identifier(source_var) = expr {
+                let (exists, already_moved) = {
+                    let env = self.env.borrow();
+                    (
+                        env.variables.contains_key(source_var),
+                        env.variables.get(source_var).map_or(false, |v| v.moved),
+                    )
+                };
+
+                if !exists {
+                    return Err(vec![format!("Variável '{}' não declarada", source_var)]);
+                } else if already_moved {
+                    return Err(vec![format!("Variável '{}' já foi movida", source_var)]);
+                }
+
+                let mut env = self.env.borrow_mut();
+                if let Some(source_info) = env.variables.get_mut(source_var) {
+                    source_info.moved = true;
+                }
             } else {
-                self.report_error("Operação move só pode ser aplicada a identificadores.")
+                return Err(vec![
+                    "Move só pode ser aplicado a identificadores".to_string(),
+                ]);
             }
         }
 
-        Ok(())
+        let mut env = self.env.borrow_mut();
+        match env.variables.get_mut(var) {
+            Some(var_info) => {
+                if rhs_type != var_info.type_ {
+                    return Err(vec![format!(
+                        "Tipo incompatível na atribuição de '{}': esperado {:?}, obtido {:?}",
+                        var, var_info.type_, rhs_type
+                    )]);
+                }
+
+                var_info.moved = false;
+                Ok(())
+            }
+            None => Err(vec![format!("Variável '{}' não declarada", var)]),
+        }
     }
 
     pub fn mark_as_moved(&mut self, var: &str) {
@@ -219,7 +173,6 @@ impl SemanticAnalyzer {
         let mut current_env = self.env.clone();
 
         loop {
-            // Verifica se a variável existe neste escopo
             let found = {
                 let mut borrowed_env = current_env.borrow_mut();
                 if let Some(info) = borrowed_env.variables.get_mut(var) {
@@ -234,7 +187,6 @@ impl SemanticAnalyzer {
                 break;
             }
 
-            // Move para o escopo pai se existir
             let parent = match &current_env.borrow().parent {
                 Some(p) => p.clone(),
                 None => break,
@@ -362,6 +314,7 @@ impl SemanticAnalyzer {
                 ConcreteValue::Value(Value::Int(_)) => Ok(Type::Int),
                 ConcreteValue::Value(Value::Str(_)) => Ok(Type::Str),
                 ConcreteValue::Value(Value::Bool(_)) => Ok(Type::Bool),
+                ConcreteValue::Value(Value::Unit) => Ok(Type::Unit),
             },
             Expression::Identifier(var) => {
                 let var_info = self
@@ -398,7 +351,7 @@ impl SemanticAnalyzer {
                             self.report_error("Length aplicado a um não-string");
                         }
 
-                        Ok(Type::Str)
+                        Ok(Type::Int)
                     }
                 }
             }
@@ -466,9 +419,12 @@ impl SemanticAnalyzer {
                     ));
                 }
 
-                // Verificar tipos dos argumentos
+                // Verificar tipos e coletar variáveis para mover
+                let mut vars_to_move = Vec::new();
                 for (i, (arg, param)) in call.args.iter().zip(proc_info.0.iter()).enumerate() {
                     let arg_type = self.check_expression(arg)?;
+
+                    // Verificar compatibilidade de tipos
                     if arg_type != param.r#type {
                         self.report_error(format!(
                             "Tipo inválido para argumento {} em {}: esperado {:?}, obtido {:?}",
@@ -478,9 +434,39 @@ impl SemanticAnalyzer {
                             arg_type
                         ));
                     }
+
+                    // Coletar identificadores para mover após verificação
+                    if let Expression::Identifier(var_name) = arg {
+                        vars_to_move.push(var_name.to_string());
+                    }
                 }
 
-                // Obter tipo de retorno do procedimento
+                // Processar movimentação das variáveis
+                for var_name in vars_to_move {
+                    // Verificar com borrow imutável primeiro
+                    let exists_and_not_moved = {
+                        let env = self.env.borrow();
+                        env.variables.get(&var_name).map_or(false, |v| !v.moved)
+                    };
+
+                    if !exists_and_not_moved {
+                        // Verificar se existe para mensagem de erro precisa
+                        let exists = self.env.borrow().variables.contains_key(&var_name);
+                        if !exists {
+                            self.report_error(format!("Variável '{}' não declarada", var_name));
+                        } else {
+                            self.report_error(format!("Variável '{}' já foi movida", var_name));
+                        }
+                    } else {
+                        // Marcar como movida com borrow mutável
+                        let mut env = self.env.borrow_mut();
+                        if let Some(var_info) = env.variables.get_mut(&var_name) {
+                            var_info.moved = true;
+                        }
+                    }
+                }
+
+                // Retornar tipo do procedimento
                 match &proc_info.1 {
                     Some(t) => Ok(t.clone()),
                     None => Ok(Type::Unit),

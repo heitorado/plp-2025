@@ -12,14 +12,14 @@ use nom::{
 };
 // Parser principal para declarações
 pub fn parse_declaration(input: &str) -> IResult<&str, Declaration> {
-    println!("Input 1 {}", input);
+    // println!("Input 1 {}", input);
     let (input, declarations) = separated_list1(
         delimited(ws, tag(","), ws),
         alt((parse_single_declaration, parse_procedure_declaration)),
     )
     .parse(input)?;
 
-    println!("Input 2 {}", input);
+    // println!("Input 2 {}", input);
 
     let combined = declarations
         .into_iter()
@@ -67,7 +67,7 @@ pub fn parse_procedure_parameters(input: &str) -> IResult<&str, Vec<ProcedurePar
 }
 
 pub fn parse_procedure_declaration(input: &str) -> IResult<&str, Declaration> {
-    println!("{}", input);
+    // println!("{}", input);
     map(
         (
             preceded(ws, tag("proc")),
