@@ -58,7 +58,7 @@ Skip ::=
 
 Atribuicao ::= Id ":=" Expressao
 
-Expressao ::= Valor | ExpUnaria | ExpBinaria | Id | ChamadaFuncao // Modificado para adicionar função
+Expressao ::= Valor | ExpUnaria | ExpBinaria | Id | ChamadaFuncao
 
 Valor ::= ValorConcreto
 
@@ -78,51 +78,23 @@ ExpBinaria ::= Expressao "+" Expressao
 
             | Expressao "++" Expressao
 
-ListaParametros ::= Expressao "," ListaParametros | Expressao | Skip // Modificado para adicionar função
+ListaParametros ::= Expressao "," ListaParametros | Expressao | Skip
 
 ChamadaFuncao ::= Id "(" ListaParametros ")" // Modificado para adicionar função
 
 ComandoDeclaracao :: = "{" Declaracao ";" Comando "}"
 
-Declaracao ::= DeclaracaoVariavel |  DeclaracaoComposta | DeclaracaoFuncao // Modificado para adicionar função
+Declaracao ::= DeclaracaoVariavel |  DeclaracaoComposta | DeclaracaoFuncao
 
 DeclaracaoVariavel ::= "var" Id "=" Expressao
 
 DeclaracaoComposta ::= Declaracao "," Declaracao
 
-DeclaracaoFuncao ::= "func" Id "(" Parametros ")" "{" Comando "}" // Modificado para adicionar função
+DeclaracaoFuncao ::= "func" Id "(" Parametros ")" "{" Comando "}"
 
 While ::= "while" Expressao "do" Comando
 
 IfThenElse ::= "if" Expressao "then" Comando "else" Comando
 
 IO ::= "write" "(" Expressao ")" | "read" "(" Id ")"
-```
-
-## Ideia de implementação do Ownership
-
-```
-// Parte de Atribuição
-// Adiciona 'move' como opcional
-// Com o 'move' a posse da expressão é atribuida ao novo X e o id antigo deixaria de existir.
-// Sem o 'move' a atribuição gera uma copia da expressão para o novo ID.
-Atribuicao ::= Id ":=" "move"? Expressao
-
-Exemplo:
-    var a = 2;
-    var b = move a; // posse de a é transferido para b
-    write(b); // Valido
-    write(a); // Inválido (erro) pois a perdeu a posse.
-
-// Parte do escopo
-// Implicitamente os recursos serão liberado ao sair do escopo (os recursos só são validos dentro de seus respectivos escopos.)
-ComandoDeclaracao ::= "{" Declaracao ";" Comando "}" // Sem alteração na BNF
-
-Exemplo:
-    {
-        var a = 10; // definição da variável.
-        write(a);
-    } // delimitação do escopo, variáveis liberadas.
-
-    write(a); // Inválido (erro) a variável não exite mais.
 ```
