@@ -39,26 +39,19 @@ A biblioteca de construção de parsers, [nom](https://docs.rs/nom/latest/nom/),
 Programa ::= Comando
 
 Comando ::= Atribuicao
-
             | ComandoDeclaracao
-
             | While
-
             | IfThenElse
-
             | IO
-
             | Comando ";" Comando
-
-            | "return" Expressao // Modificado para adicionar função
-
             | Skip
+            | ChamadaProcedimento
 
 Skip ::=
 
 Atribuicao ::= Id ":=" Expressao
 
-Expressao ::= Valor | ExpUnaria | ExpBinaria | Id | ChamadaFuncao
+Expressao ::= Valor | ExpUnaria | ExpBinaria | Id | ChamadaProcedimento
 
 Valor ::= ValorConcreto
 
@@ -67,34 +60,37 @@ ValorConcreto ::= ValorInteiro | ValorBooleano | ValorString
 ExpUnaria ::= "-" Expressao | "not" Expressao | "length" Expressao
 
 ExpBinaria ::= Expressao "+" Expressao
-
             | Expressao "-" Expressao
-
             | Expressao "and" Expressao
-
             | Expressao "or" Expressao
-
             | Expressao "==" Expressao
+            | Expressao "<=" Expressao
+            | Expressao ">=" Expressao
+            | Expressao "<" Expressao
+            | Expressao ">" Expressao
 
-            | Expressao "++" Expressao
-
-ListaParametros ::= Expressao "," ListaParametros | Expressao | Skip
-
-ChamadaFuncao ::= Id "(" ListaParametros ")" // Modificado para adicionar função
 
 ComandoDeclaracao :: = "{" Declaracao ";" Comando "}"
 
-Declaracao ::= DeclaracaoVariavel |  DeclaracaoComposta | DeclaracaoFuncao
+Declaracao ::= DeclaracaoVariavel |  DeclaracaoComposta | DeclaracaoProcedimento
 
 DeclaracaoVariavel ::= "var" Id "=" Expressao
 
 DeclaracaoComposta ::= Declaracao "," Declaracao
 
-DeclaracaoFuncao ::= "func" Id "(" Parametros ")" "{" Comando "}"
+DeclaracaoProcedimento ::= "proc" Id "(" ListaDeclaracaoParametro ")" "{" Comando "}"
+
+ListaDeclaracaoParametro ::= Tipo Id | Tipo Id "," ListaDeclaracaoParametro
+
+Tipo ::= "string" | "int" | "boolean"
 
 While ::= "while" Expressao "do" Comando
 
 IfThenElse ::= "if" Expressao "then" Comando "else" Comando
 
 IO ::= "write" "(" Expressao ")" | "read" "(" Id ")"
+
+ChamadaProcedimento ::= "call" Id "(" [ListaExpressao] ")"
+
+ListaExpressao ::= Expressao | Expressao, ListaExpressao
 ```
