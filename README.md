@@ -64,6 +64,7 @@ ExpBinaria ::= Expressao "+" Expressao
             | Expressao "and" Expressao
             | Expressao "or" Expressao
             | Expressao "==" Expressao
+            | Expressão "++" Expressao
             | Expressao "<=" Expressao
             | Expressao ">=" Expressao
             | Expressao "<" Expressao
