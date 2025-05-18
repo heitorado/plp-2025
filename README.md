@@ -33,7 +33,7 @@ A biblioteca de construção de parsers, [nom](https://docs.rs/nom/latest/nom/),
 
 - Destaque: Arquitetura modular que favorece reuso e manutenção.
 
-## BNF da Linguagem Imperativa 1 com implementação de funções.
+## BNF da Linguagem Imperativa 2 com implementação de funções como expressão.
 
 ```
 Programa ::= Comando
