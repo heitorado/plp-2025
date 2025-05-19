@@ -103,8 +103,8 @@ impl SemanticAnalyzer {
                 Ok(())
             }
             Command::Skip => Ok(()),
-            Command::Evaluate(expr) => {
-                let _ = self.check_expression(expr)?;
+            Command::CallProcedure(call) => {
+                let _ = self.check_expression(&Expression::CallProcedure(call.clone()))?;
                 Ok(())
             }
         }
@@ -199,7 +199,7 @@ impl SemanticAnalyzer {
     fn get_last_expression_type(&mut self, cmd: &Command) -> Type {
         match cmd {
             Command::Sequence(_, cmd2) => self.get_last_expression_type(cmd2),
-            Command::Evaluate(expr) => self.check_expression(expr).unwrap_or(Type::Unit),
+            Command::CallProcedure(call) => self.check_expression(&Expression::CallProcedure(call.clone())).unwrap_or(Type::Unit),
             _ => Type::Unit,
         }
     }
@@ -334,7 +334,7 @@ impl SemanticAnalyzer {
                 match op {
                     UnaryOperator::Neg => {
                         if expr_type != Type::Int {
-                            self.report_error("Negação aplicada a um não-inteiro");
+                            self.report_error(format!("Sinal negativo aplicado a algo que não é inteiro: {:?}", expr_type));
                         }
 
                         Ok(Type::Int)

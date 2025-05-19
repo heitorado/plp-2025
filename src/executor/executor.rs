@@ -48,8 +48,8 @@ impl Executor {
                 self.execute_command(cmd2);
             }
             Command::Skip => {}
-            Command::Evaluate(expr) => {
-                self.execute_expression(expr);
+            Command::CallProcedure(call) => {
+                self.execute_call_procedure(call);
             }
         }
     }
@@ -169,6 +169,7 @@ impl Executor {
         match io_command {
             IOCommand::Write(expr) => {
                 let value = self.execute_expression(expr);
+                // println!("[DEBUGGER] Runtime Env: {:?}", self.env);
                 println!("{}", value);
             }
             IOCommand::Read(var) => {
@@ -258,7 +259,7 @@ impl Executor {
     fn get_last_value(&mut self, cmd: &Command) -> Value {
         match cmd {
             Command::Sequence(_, cmd2) => self.get_last_value(cmd2),
-            Command::Evaluate(expr) => self.execute_expression(expr),
+            Command::CallProcedure(call) => self.execute_call_procedure(call),
             _ => Value::Unit,
         }
     }

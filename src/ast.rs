@@ -23,7 +23,7 @@ pub enum Command {
     Skip,
     // CallProcedure(CallProcedure),
     // Retorno de procedure
-    Evaluate(Expression),
+    CallProcedure(CallProcedure),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
