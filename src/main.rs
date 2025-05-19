@@ -11,7 +11,7 @@ fn main() {
             a + b
         };
         write(c);
-        c := soma(c, d);
+        c := call soma(c, d);
         write(c);
         call soma(20, 40)
     }
