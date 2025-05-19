@@ -341,14 +341,14 @@ impl SemanticAnalyzer {
                     }
                     UnaryOperator::Not => {
                         if expr_type != Type::Bool {
-                            self.report_error("Negação lógica aplicada a um não-boleano");
+                            self.report_error(format!("Negação lógica aplicada a algo que não é booleano: {:?}", expr_type));
                         }
 
                         Ok(Type::Bool)
                     }
                     UnaryOperator::Length => {
                         if expr_type != Type::Str {
-                            self.report_error("Length aplicado a um não-string");
+                            self.report_error(format!("Length aplicado a algo que não é string: {:?}", expr_type));
                         }
 
                         Ok(Type::Int)
@@ -362,7 +362,7 @@ impl SemanticAnalyzer {
                 match op {
                     BinaryOperator::Add | BinaryOperator::Sub => {
                         if left_type != Type::Int || right_type != Type::Int {
-                            self.report_error(format!("Operações aritimétricas precisão de 2 inteiros, passados {:?} e {:?}", left_type, right_type));
+                            self.report_error(format!("Operações aritméticas esperam 2 inteiros, porém foi passado {:?} e {:?}", left_type, right_type));
                         }
 
                         Ok(Type::Int)
@@ -379,14 +379,14 @@ impl SemanticAnalyzer {
                     }
                     BinaryOperator::And | BinaryOperator::Or => {
                         if left_type != Type::Bool || right_type != Type::Bool {
-                            self.report_error("Operador lógico precisa de 2 boleanos");
+                            self.report_error("Operador lógico espera 2 booleanos");
                         }
 
                         Ok(Type::Bool)
                     }
                     BinaryOperator::Concat => {
                         if left_type != Type::Str || right_type != Type::Str {
-                            self.report_error("Concatenação precisa de duas strings".to_string());
+                            self.report_error("Concatenação espera duas strings".to_string());
                         }
                         Ok(Type::Str)
                     }
@@ -396,7 +396,7 @@ impl SemanticAnalyzer {
                     | BinaryOperator::Greater
                     | BinaryOperator::GreaterEqual => {
                         if left_type != Type::Int || right_type != Type::Int {
-                            self.report_error("Comparações precisão de dois inteiros".to_string());
+                            self.report_error("Comparações esperam dois inteiros".to_string());
                         }
                         Ok(Type::Bool)
                     }
